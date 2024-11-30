@@ -4,6 +4,7 @@ use clap::Parser;
 use log::info;
 
 mod config;
+mod build;
 
 #[derive(Parser)]
 struct Args {
