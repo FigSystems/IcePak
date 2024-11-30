@@ -4,3 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+log = "*"
+colog = "*"
+toml = "*"
+serde = "*"
+serde_derive = "*"
+clap = { version = "*", features = ["derive"] }
