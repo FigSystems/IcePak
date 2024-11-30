@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 
 use clap::Parser;
+use log::info;
 
 mod config;
 
@@ -15,4 +16,6 @@ fn main() {
 
     let args = Args::parse();
     let config_path = args.config;
+	let config = config::read_config(&config_path.to_string_lossy().to_string());
+	info!("{}", toml::to_string(&config).unwrap());
 }
