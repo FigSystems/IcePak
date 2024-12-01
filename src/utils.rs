@@ -29,3 +29,7 @@ pub fn touch(file: &String) -> Result<(), String> {
 pub fn rm(file: &String) -> Result<(), String> {
 	cmd(&format!("rm -rf {}", file))
 }
+
+pub fn mkdir(dir: &String) -> Result<(), String> {
+	cmd(&format!("mkdir -p {}", dir))
+}

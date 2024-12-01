@@ -69,5 +69,9 @@ bwrap {args} {cmd}",
 		appdir = app_dir.to_str().unwrap()
 	))?;
 
+	utils::mkdir(&"target/".to_string())?;
+	utils::mv(&format!("{}.AppImage", c.name + "-" + &c.build.arch), &"target/".to_string())?;
+
+
 	Ok(())
 }
