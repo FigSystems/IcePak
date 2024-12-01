@@ -39,7 +39,7 @@ Categories={categories}",
 
 	let mut args = String::new(); // Verify there is a space at the end of every push to this!
 	if let Some(value) = c.run.custom_root {
-		if value {
+		if !value {
 			args.push_str("--overlay-src / ");
 		}
 	}
