@@ -5,7 +5,7 @@ use log::info;
 
 mod config;
 mod build;
-mod
+mod utils;
 
 #[derive(Parser)]
 struct Args {
@@ -21,4 +21,6 @@ fn main() {
 
 	let config = config::read_config(&config_path.to_string_lossy().to_string());
 	info!("{}", toml::to_string(&config).unwrap());
+
+	build::build_bundle(config).unwrap();
 }
