@@ -1,12 +1,25 @@
 use std::fs;
+use std::path::Path;
 
 use log::info;
 
 use crate::config::Config;
 use crate::utils;
 
-fn gen_base() -> Result<(), String> {
-	utils::cmd("sudo debootstrap focal target/base_img http://archive.ubuntu.com/ubuntu")?;
+pub fn run_install(app_dir: &Path) -> Result<(), String> {
+	utils::mkdir(&app_dir.join("merged").to_string_lossy().to_string())?;
+	utils::mkdir(&app_dir.join("work").to_string_lossy().to_string())?;
+	utils::mkdir(&app_dir.join("merged").to_string_lossy().to_string())?;
+	utils::cmd(
+		&format!(
+			"fuse-overlayfs -o lowerdir=base_img,upperdir={appdir}/rootfs,workdir={appdir}/work {appdir}/merged",
+			appdir = app_dir.to_str().unwrap()
+		)
+	)?;
+	let _ = utils::cmd(&format!("bwrap --bind {appdir}/merged / bash {appdir}", appdir = app_dir.join("setup.sh").to_string_lossy()));
+
+	utils::cmd(&format!("umount {appdir}/merged", appdir = app_dir.to_str().unwrap()))?;
+
 	Ok(())
 }
 
@@ -69,9 +82,16 @@ bwrap {args} {cmd}",
 		return Err(result.unwrap_err().to_string());
 	}
 
-
+	utils::touch(&format!("{}/setup.sh", app_dir.to_str().unwrap()))?;
+	let result = fs::write(app_dir.join("setup.sh").to_str().unwrap(), c.build.build_script);
+	if result.is_err() {
+		return Err(result.unwrap_err().to_string());
+	}
 
 	utils::cp(&c.build.root, &app_dir.join("rootfs").to_string_lossy().to_string())?;
+
+	run_install(app_dir)?;
+
 	utils::cmd(&format!(
 		"ARCH={arch} ./appimagetool-x86_64 {appdir}",
 		arch = c.build.arch,
