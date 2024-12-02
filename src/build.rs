@@ -5,6 +5,11 @@ use log::info;
 use crate::config::Config;
 use crate::utils;
 
+fn gen_base() -> Result<(), String> {
+	utils::cmd("sudo debootstrap focal target/base_img http://archive.ubuntu.com/ubuntu")?;
+	Ok(())
+}
+
 pub fn build_bundle(c: Config) -> Result<(), String> {
 	let app_dir = temp_dir::TempDir::new().unwrap();
 	let app_dir = app_dir.path();
