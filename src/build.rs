@@ -42,6 +42,8 @@ Categories={categories}",
 		if !value {
 			args.push_str("--overlay-src / ");
 		}
+	} else {
+		args.push_str("--overlay-src / ");
 	}
 	args.push_str("--overlay-src rootfs ");
 
@@ -62,7 +64,7 @@ bwrap {args} {cmd}",
 		return Err(result.unwrap_err().to_string());
 	}
 
-	
+
 
 	utils::cp(&c.build.root, &app_dir.join("rootfs").to_string_lossy().to_string())?;
 	utils::cmd(&format!(
