@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # Usage: abc.sh <payload> <script>
 # BASEDIR=`dirname "${0}"`
@@ -22,9 +22,9 @@ user_cwd=\$(pwd)
 out=\$(mktemp -d)
 
 PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
-tail -n+\$PAYLOAD_LINE \$0 | pv -p -s \$((\$(wc -c < \$0) - \$PAYLOAD_LINE)) | tar -xz -C \$out
+tail -n+\$PAYLOAD_LINE \$0 | tar -x -C \$out
 
-cd \$out
+cd \$out/*
 ####################################
 
 ls
@@ -38,7 +38,13 @@ exit 0
 __PAYLOAD_BELOW__\n"
 EOF
 
-cat "$tmp" "$payload" > "$script" && rm "$tmp"
+echo "Packaging final script..."
+pv "$tmp" "$payload" > "$script"
+
+echo "Cleaning up..."
+rm "$tmp"
 chmod +x "$script"
 
 rm -f "$payload"
+
+echo "Done."
