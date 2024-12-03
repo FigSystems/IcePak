@@ -1,6 +1,5 @@
 #![allow(dead_code)]
 
-use clap::Parser;
 use log::info;
 
 mod config;
