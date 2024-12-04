@@ -41,8 +41,10 @@ mkdir old_root
 pivot_root . old_root
 # Hopefully we don't crash here... :/
 cd /
-ls
-umount old_root || (echo "Failed to unmount old_root, Can't proceed as this is insecure!"; exit 2)
+ls etc
+cat old_root/etc/mtab
+
+/usr/bin/umount /old_root || (echo "Failed to unmount old_root, Can't proceed as this is insecure!"; exit 2)
 
 # Run AppRun
 ./AppRun
