@@ -14,10 +14,9 @@ payload="__payload__$RANDOM.tar"
 
 echo "Compresssing payload..."
 tar -cvf $payload $payload_in || exit 1
-chown $(id -u):$(id -g) $payload
 
 cat <<EOF > "$tmp"
-#!/bin/bash
+#!/bin/bash -x
 user_cwd=\$(pwd)
 out=\$(mktemp -d)
 
@@ -30,25 +29,24 @@ cd \$out/*
 #-----------------------------------
 # Start namespace
 unshare -Urm <<EOD
-mkdir \$(pwd)/overlay
-mkdir \$(pwd)/work
-mount -t overlay overlay -o lowerdir=/tmp/root,upperdir=\$(pwd)/rootfs,workdir=\$(pwd)/work,userxattr,index=off,metacopy=off \$(pwd)/overlay
+mkdir overlay
+mkdir work
+mount -t overlay overlay -o lowerdir=/tmp/root,upperdir=rootfs,workdir=work,userxattr,index=off,metacopy=off overlay
 
 cd overlay
 mkdir old_root
 
 # Pivot root (similar to chroot, but more secure)
 pivot_root . old_root
+chroot . /bin/bash <<EOC
 # Hopefully we don't crash here... :/
 cd /
-ls etc
-cat old_root/etc/mtab
 
 /usr/bin/umount /old_root || (echo "Failed to unmount old_root, Can't proceed as this is insecure!"; exit 2)
 
 # Run AppRun
 ./AppRun
-
+EOC
 EOD
 #-----------------------------------
 
