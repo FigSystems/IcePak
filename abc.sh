@@ -17,6 +17,24 @@ tar -cvf $payload $payload_in || exit 1
 
 cat <<EOF > "$tmp"
 #!/bin/bash -x
+
+cmd="/AppRun"
+case \$1 in
+  "--help" | "help")
+    echo "Usage: ./\$ <optional command to be run> \[--help\]"
+    echo "    --help : Show this help and exit"
+    echo "    command : The \(optional\) command to be run"
+    ;;
+  "")
+    # No command specified
+    ;;
+  *)
+    cmd = \$1
+    ;;
+esac
+
+echo \$cmd
+
 user_cwd=\$(pwd)
 out=\$(mktemp -d)
 
@@ -26,30 +44,8 @@ tail -n+\$PAYLOAD_LINE \$0 | tar -x -C \$out
 cd \$out/*
 ####################################
 
-#-----------------------------------
-# Start namespace
-unshare -Urm <<EOD
-mkdir overlay
-mkdir work
-echo "Overlay..."
-mount -t overlay overlay -o lowerdir=/tmp/root,upperdir=rootfs,workdir=work,userxattr,index=off,metacopy=off overlay
-cd overlay
-mkdir old_root
-
-# Pivot root (similar to chroot, but more secure)
-echo "Pivot root"
-pivot_root . old_root
-# Hopefully we don't crash here... :/
-echo "Bash"
-
-exec chroot .
-chroot . bash -c "/usr/bin/umount -l /old_root || (echo \"Failed to unmount old_root, Can't proceed as this is insecure!\"; exit 2)"
-
-# Run AppRun
-# ./AppRun
-EOD
-#-----------------------------------
-
+mkdir -p work overlay 
+bwrap --overlay-src /tmp/root --overlay rootfs work / --unshare-all \$cmd
 
 ####################################
 cd \$user_cwd
