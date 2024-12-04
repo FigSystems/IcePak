@@ -27,13 +27,13 @@ tail -n+\$PAYLOAD_LINE \$0 | tar -x -C \$out
 cd \$out/*
 ####################################
 
-ls
-
+#-----------------------------------
 # Start namespace
 unshare -Urm <<EOD
-# Needed for pivot_root
-# mount --bind rootfs rootfs
-mount -t overlay overlay -o lowerdir=/,upperdir=rootfs,workdir=work overlay
+mkdir \$(pwd)/overlay
+mkdir \$(pwd)/work
+mount -t overlay overlay -o lowerdir=/tmp/root,upperdir=\$(pwd)/rootfs,workdir=\$(pwd)/work,userxattr,index=off,metacopy=off \$(pwd)/overlay
+
 cd overlay
 mkdir old_root
 
@@ -41,12 +41,14 @@ mkdir old_root
 pivot_root . old_root
 # Hopefully we don't crash here... :/
 cd /
+ls
+umount old_root || (echo "Failed to unmount old_root, Can't proceed as this is insecure!"; exit 2)
 
 # Run AppRun
 ./AppRun
 
-umount old_root || (echo "Failed to unmount old_root, Can't proceed as this is insecure!"; exit 2)
 EOD
+#-----------------------------------
 
 
 ####################################
