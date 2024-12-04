@@ -29,6 +29,24 @@ cd \$out/*
 
 ls
 
+# Start namespace
+unshare -Urm <<EOD
+# Needed for pivot_root
+# mount --bind rootfs rootfs
+mount -t overlay overlay -o lowerdir=/,upperdir=rootfs,workdir=work overlay
+cd overlay
+mkdir old_root
+
+# Pivot root (similar to chroot, but more secure)
+pivot_root . old_root
+# Hopefully we don't crash here... :/
+cd /
+
+# Run AppRun
+./AppRun
+
+umount old_root || (echo "Failed to unmount old_root, Can't proceed as this is insecure!"; exit 2)
+EOD
 
 
 ####################################
