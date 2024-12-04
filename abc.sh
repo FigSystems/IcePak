@@ -16,24 +16,23 @@ echo "Compresssing payload..."
 tar -cvf $payload $payload_in || exit 1
 
 cat <<EOF > "$tmp"
-#!/bin/bash -x
+#!/bin/bash
 
 cmd="/AppRun"
 case \$1 in
   "--help" | "help")
-    echo "Usage: ./\$ <optional command to be run> \[--help\]"
+    echo "Usage: ./\$ <command> <>"
     echo "    --help : Show this help and exit"
     echo "    command : The \(optional\) command to be run"
+	echo "    arguments : The arguments to the command"
     ;;
   "")
     # No command specified
     ;;
   *)
-    cmd = \$1
+    cmd=\$1
     ;;
 esac
-
-echo \$cmd
 
 user_cwd=\$(pwd)
 out=\$(mktemp -d)
@@ -44,8 +43,8 @@ tail -n+\$PAYLOAD_LINE \$0 | tar -x -C \$out
 cd \$out/*
 ####################################
 
-mkdir -p work overlay 
-bwrap --overlay-src /tmp/root --overlay rootfs work / --unshare-all \$cmd
+mkdir -p work overlay
+bwrap --overlay-src /tmp/root --overlay rootfs work / --unshare-all \$cmd \${@:2}
 
 ####################################
 cd \$user_cwd
