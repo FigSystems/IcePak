@@ -31,22 +31,22 @@ cd \$out/*
 unshare -Urm <<EOD
 mkdir overlay
 mkdir work
+echo "Overlay..."
 mount -t overlay overlay -o lowerdir=/tmp/root,upperdir=rootfs,workdir=work,userxattr,index=off,metacopy=off overlay
-
 cd overlay
 mkdir old_root
 
 # Pivot root (similar to chroot, but more secure)
+echo "Pivot root"
 pivot_root . old_root
-chroot . /bin/bash <<EOC
 # Hopefully we don't crash here... :/
-cd /
+echo "Bash"
 
-/usr/bin/umount /old_root || (echo "Failed to unmount old_root, Can't proceed as this is insecure!"; exit 2)
+exec chroot .
+chroot . bash -c "/usr/bin/umount -l /old_root || (echo \"Failed to unmount old_root, Can't proceed as this is insecure!\"; exit 2)"
 
 # Run AppRun
-./AppRun
-EOC
+# ./AppRun
 EOD
 #-----------------------------------
 
@@ -59,7 +59,7 @@ __PAYLOAD_BELOW__\n"
 EOF
 
 echo "Packaging final script..."
-pv "$tmp" "$payload" > "$script"
+cat "$tmp" "$payload" > "$script"
 
 echo "Cleaning up..."
 rm "$tmp"
