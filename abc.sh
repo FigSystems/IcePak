@@ -20,17 +20,13 @@ cat <<EOF > "$tmp"
 
 cmd="/AppRun"
 case \$1 in
-  "--help" | "help")
-    echo "Usage: ./\$ <command> <>"
-    echo "    --help : Show this help and exit"
-    echo "    command : The \(optional\) command to be run"
-	echo "    arguments : The arguments to the command"
-    ;;
-  "")
-    # No command specified
-    ;;
-  *)
-    cmd=\$1
+  "--appbundle-help")
+	echo "AppBundle Help"
+	echo ""
+    echo "Usage: \$0 <arguments>"
+    echo "    --appbundle-help : Show this help and exit"
+	echo "    arguments : The (optional) arguments to the command"
+	exit 0
     ;;
 esac
 
@@ -48,7 +44,7 @@ bwrap \
  --overlay-src /tmp/root	\
  --overlay rootfs work /	\
  --chdir "\$user_cwd"		\
- --unshare-all \$cmd \${@:2}
+ --unshare-all \$cmd \${@:1}
 
 ####################################
 cd \$user_cwd
