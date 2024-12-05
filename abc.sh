@@ -40,6 +40,7 @@ cat <<EOF > "$tmp"
 
 cmd="/AppRun"
 POSITIONAL_ARGS=()
+extract_icon=""
 
 while [[ \$# -gt 0 ]]; do
   case \$1 in
@@ -50,11 +51,6 @@ while [[ \$# -gt 0 ]]; do
 		;;
 	--appbundle-shell)
 		cmd="/bin/bash"
-		shift
-		;;
-	--appbundle-extract-icon)
-		output_file=\$2
-		shift
 		shift
 		;;
     -*|--*)
@@ -76,7 +72,12 @@ out=\$(mktemp -d)
 PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
 tail -n+\$PAYLOAD_LINE \$0 | tar -x -C \$out
 
+# Resolve any relative paths here before they get destroyed!!!!
+
 cd \$out/*
+
+# Process optional args before sandbox
+
 ####################################
 
 mkdir -p work overlay
