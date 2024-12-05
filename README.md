@@ -15,6 +15,7 @@ directory
 ├── rootfs
 │   └── AppRun
 ├── icon
+├── icon
 └── app.desktop
 ```
 
