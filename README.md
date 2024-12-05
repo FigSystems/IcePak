@@ -18,4 +18,4 @@ directory
 └── app.desktop
 ```
 
-Pretty basic. `AppRun` is the file that will be executed when the bundle is run. It can be any file that can be  `./`ed (e.g. Shell script with a shebang, binary executable, symlink, etc.). `app.png` is the icon for the bundle. The name must be exactly `app.png` or it won't get recognized. `app.desktop` is a regular desktop file, although the `Exec` field does not need to be filled out. For now `Name` is the only mandatory field. Just like with `app.png` the name is important for it to get recognized.
+Pretty basic. `AppRun` is the file that will be executed when the bundle is run. It can be any file that can be  `./`ed (e.g. shell script with a shebang, binary executable, symlink, etc.). `app.png` is the icon for the bundle. The name must be exactly `app.png` or it won't get recognized. `app.desktop` is a regular desktop file, although the `Exec` field does not need to be filled out. For now `Name` is the only mandatory field. Just like with `app.png` the name is important for it to get recognized.
