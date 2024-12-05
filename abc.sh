@@ -52,6 +52,11 @@ while [[ \$# -gt 0 ]]; do
 		cmd="/bin/bash"
 		shift
 		;;
+	--appbundle-extract-icon)
+		output_file=\$2
+		shift
+		shift
+		;;
     -*|--*)
       echo "Unknown option \$1"
       exit 1
