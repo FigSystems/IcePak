@@ -26,8 +26,13 @@ case \$1 in
     echo "Usage: \$0 <arguments>"
     echo "    --appbundle-help : Show this help and exit"
 	echo "    arguments : The (optional) arguments to the command"
+	shift # Not scrictly needed but good practice
 	exit 0
     ;;
+  "--appbundle-shell")
+	cmd="/bin/bash"
+	shift
+	;;
 esac
 
 user_cwd="\$(pwd)"
