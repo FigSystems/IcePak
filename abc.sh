@@ -19,21 +19,31 @@ cat <<EOF > "$tmp"
 #!/bin/bash
 
 cmd="/AppRun"
-case \$1 in
-  "--appbundle-help")
-	echo "AppBundle Help"
-	echo ""
-    echo "Usage: \$0 <arguments>"
-    echo "    --appbundle-help : Show this help and exit"
-	echo "    arguments : The (optional) arguments to the command"
-	shift # Not scrictly needed but good practice
-	exit 0
-    ;;
-  "--appbundle-shell")
-	cmd="/bin/bash"
-	shift
-	;;
-esac
+POSITIONAL_ARGS=()
+
+while [[ \$# -gt 0 ]]; do
+  case \$1 in
+	--appbundle-help)
+		echo "Usage: \$0 [arguments to contained command...]"
+		shift
+		exit 0
+		;;
+	--appbundle-shell)
+		cmd="/bin/bash"
+		shift
+		;;
+    -*|--*)
+      echo "Unknown option \$1"
+      exit 1
+      ;;
+    *)
+      POSITIONAL_ARGS+=("\$1") # save positional arg
+      shift # past argument
+      ;;
+  esac
+done
+
+set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
 
 user_cwd="\$(pwd)"
 out=\$(mktemp -d)
