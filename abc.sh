@@ -34,7 +34,7 @@ case \$1 in
     ;;
 esac
 
-user_cwd=\$(pwd)
+user_cwd="\$(pwd)"
 out=\$(mktemp -d)
 
 PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
@@ -44,7 +44,11 @@ cd \$out/*
 ####################################
 
 mkdir -p work overlay
-bwrap --overlay-src /tmp/root --overlay rootfs work / --unshare-all \$cmd \${@:2}
+bwrap \
+ --overlay-src /tmp/root	\
+ --overlay rootfs work /	\
+ --chdir "\$user_cwd"		\
+ --unshare-all \$cmd \${@:2}
 
 ####################################
 cd \$user_cwd
