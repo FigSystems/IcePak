@@ -32,7 +32,7 @@ tmp=__extract__$RANDOM
 payload="__payload__$RANDOM.tar"
 
 echo "Compresssing payload..."
-tar -cvf $payload $payload_in || exit 1
+$(tar -cvf $payload -C $payload_in . || exit 1)
 
 cat <<EOF > "$tmp"
 #!/bin/bash
@@ -69,7 +69,7 @@ while [[ \$# -gt 0 ]]; do
   esac
 done
 
-set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
+set -- "\${POSITIONAL_ARGS[@]}" # restore positional parameters
 
 user_cwd="\$(pwd)"
 out=\$(mktemp -d)
@@ -78,10 +78,14 @@ PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
 tail -n+\$PAYLOAD_LINE \$0 | tar -x -C \$out
 
 # Resolve any relative paths here before they get destroyed!!!!
+if [ -n "\$persistent" ]; then
+	persistent=\$(realpath \$persistent)
+fi
 
-cd \$out/*
+cd \$out
 
 # Process optional args before sandbox
+ls
 
 ####################################
 
@@ -98,14 +102,9 @@ cd \$user_cwd
 # Repackage self if persistent flag is set
 
 if [ -n "\$persistent" ]; then
-	tmp_out=\$(mktemp -u) # Create a temp file to store the tarball
-	tmp_self=\$(mktemp -u) # Create a temp file to store the self extracting script
-	tar -cvf \$out \$tmp_out # Create the tarball
-
-	head -n\$((\$PAYLOAD_LINE)) \$0 > \$tmp_self # Create the self extracting script
-	cat \$tmp_out >> \$tmp_self
-	chmod +x \$tmp_self
-	cp \$tmp_self \$persistent
+	head -n \$((\$PAYLOAD_LINE - 1)) \$0 > \$persistent # Create the self extracting script
+	tar --exclude="./work" --strip-components 1 -cvf - -C \$out . >> \$persistent # Create the tarball
+	chmod +x \$persistent
 fi
 
 rm -rf \$out
