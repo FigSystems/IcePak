@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Usage: abc.sh <payload> <script>
 # BASEDIR=`dirname "${0}"`
 # cd "$BASEDIR"
 
@@ -41,6 +40,7 @@ cat <<EOF > "$tmp"
 cmd="/AppRun"
 POSITIONAL_ARGS=()
 extract_icon=""
+persistent=""
 
 while [[ \$# -gt 0 ]]; do
   case \$1 in
@@ -51,6 +51,11 @@ while [[ \$# -gt 0 ]]; do
 		;;
 	--appbundle-shell)
 		cmd="/bin/bash"
+		shift
+		;;
+	--persistent)
+		persistent="\$2"
+		shift
 		shift
 		;;
     -*|--*)
@@ -89,6 +94,20 @@ bwrap \
 
 ####################################
 cd \$user_cwd
+
+# Repackage self if persistent flag is set
+
+if [ -n "\$persistent" ]; then
+	tmp_out=\$(mktemp -u) # Create a temp file to store the tarball
+	tmp_self=\$(mktemp -u) # Create a temp file to store the self extracting script
+	tar -cvf \$out \$tmp_out # Create the tarball
+
+	head -n\$((\$PAYLOAD_LINE)) \$0 > \$tmp_self # Create the self extracting script
+	cat \$tmp_out >> \$tmp_self
+	chmod +x \$tmp_self
+	cp \$tmp_self \$persistent
+fi
+
 rm -rf \$out
 exit 0
 __PAYLOAD_BELOW__\n"
