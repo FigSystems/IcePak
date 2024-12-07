@@ -41,11 +41,17 @@ cmd="/AppRun"
 POSITIONAL_ARGS=()
 extract_icon=""
 persistent=""
+base="/tmp/root"
+custom_base="false"
 
 while [[ \$# -gt 0 ]]; do
   case \$1 in
 	--appbundle-help)
 		echo "Usage: \$0 [arguments to contained command...]"
+		echo "--appbundle-help      show this help text"
+		echo "--appbundle-shell     run an interactive shell in the bundle"
+		echo "--persistent outfile  recreate bundle after execution"
+		echo "--base dir            base directory for overlay"
 		shift
 		exit 0
 		;;
@@ -55,6 +61,12 @@ while [[ \$# -gt 0 ]]; do
 		;;
 	--persistent)
 		persistent="\$2"
+		shift
+		shift
+		;;
+	--base)
+		base="\$2"
+		custom_base="true"
 		shift
 		shift
 		;;
@@ -82,19 +94,42 @@ if [ -n "\$persistent" ]; then
 	persistent=\$(realpath \$persistent)
 fi
 
+base=\$(realpath \$base)
+
 cd \$out
+ls
 
 # Process optional args before sandbox
-ls
+bwrap_chdir=\$user_cwd
+
+if [ "\$custom_base" = "true" ]; then
+	# User provided base image
+	if [ ! -d "\$base" ]; then
+		echo "Base directory does not exist: \$base"
+		exit 1
+	fi
+
+	bwrap_chdir="/"
+fi
 
 ####################################
 
 mkdir -p work overlay
 bwrap \
- --overlay-src /tmp/root	\
- --overlay rootfs work /	\
- --chdir "\$user_cwd"		\
- --unshare-all \$cmd \${@:1}
+ --overlay-src \$base			\
+ --overlay rootfs work /		\
+ --chdir "\$bwrap_chdir"		\
+ --unshare-all					\
+ --hostname "bubblewrapped"		\
+ --share-net					\
+ \$cmd \${@:1}
+
+sleep 0.5
+
+echo "Cleaning up..."
+bwrap --bind \$base / \
+ --bind work /work \
+ sh -c "rm -rf work"
 
 ####################################
 cd \$user_cwd
