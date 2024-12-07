@@ -109,7 +109,11 @@ bargs=()
 bargs+=( "--overlay-src" )
 bargs+=( "\$base" )
 
-bargs+=( "--tmp-overlay /" )
+bargs+=( "--overlay-src" )
+bargs+=( "\$out/rootfs" )
+
+bargs+=( "--tmp-overlay" )
+bargs+=( "/" )
 
 bargs+=( "--chdir" )
 bargs+=( "\$bwrap_chdir" )
