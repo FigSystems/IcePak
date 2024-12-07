@@ -50,7 +50,7 @@ while [[ \$# -gt 0 ]]; do
 		echo "Usage: \$0 [arguments to contained command...]"
 		echo "--appbundle-help      show this help text"
 		echo "--appbundle-shell     run an interactive shell in the bundle"
-		echo "--persistent outfile  recreate bundle after execution"
+		echo "--persistent outfile  recreate bundle after execution (requires root)"
 		echo "--base dir            base directory for overlay"
 		shift
 		exit 0
@@ -61,6 +61,9 @@ while [[ \$# -gt 0 ]]; do
 		;;
 	--persistent)
 		persistent="\$2"
+		echo "You need to authenticate as root to use --persistent"
+		sudo -v || (echo "You need to be root to use --persistent"; exit 1)
+		echo "Authenticated as root!"
 		shift
 		shift
 		;;
@@ -114,22 +117,37 @@ fi
 
 ####################################
 
-mkdir -p work overlay
-bwrap \
- --overlay-src \$base			\
- --overlay rootfs work /		\
- --chdir "\$bwrap_chdir"		\
- --unshare-all					\
- --hostname "bubblewrapped"		\
- --share-net					\
- \$cmd \${@:1}
+bargs=()
+bargs+=( "--overlay-src" )
+bargs+=( "\$base" )
 
-sleep 0.5
+if [ -n \$persistent ]; then
+	mkdir -p work overlay
+	bargs+=( "--overlay" )
+	bargs+=( "rootfs" )
+	bargs+=( "work" )
+	bargs+=( "/" )
+else
+	bargs+=( "--tmp-overlay /" )
+fi
 
-echo "Cleaning up..."
-bwrap --bind \$base / \
- --bind work /work \
- sh -c "rm -rf work"
+bargs+=( "--chdir" )
+bargs+=( "\$bwrap_chdir" )
+
+bargs+=( "--unshare-all" )
+
+bargs+=( "--hostname" )
+bargs+=( "bubblewrapped" )
+
+bargs+=( "--share-net" )
+
+bargs+=( "--dev" )
+bargs+=( "/dev" )
+
+bargs+=( "\$cmd" )
+bargs+=( "\${@:1}" )
+
+bwrap "\${bargs[@]}"
 
 ####################################
 cd \$user_cwd
@@ -142,7 +160,12 @@ if [ -n "\$persistent" ]; then
 	chmod +x \$persistent
 fi
 
-rm -rf \$out
+if [ -n \$persistent ]; then
+	sudo rm -rf \$out
+else
+	rm -rf \$out/
+fi
+
 exit 0
 __PAYLOAD_BELOW__\n"
 EOF
