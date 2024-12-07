@@ -50,21 +50,12 @@ while [[ \$# -gt 0 ]]; do
 		echo "Usage: \$0 [arguments to contained command...]"
 		echo "--appbundle-help      show this help text"
 		echo "--appbundle-shell     run an interactive shell in the bundle"
-		echo "--persistent outfile  recreate bundle after execution (requires root)"
 		echo "--base dir            base directory for overlay"
 		shift
 		exit 0
 		;;
 	--appbundle-shell)
 		cmd="/bin/bash"
-		shift
-		;;
-	--persistent)
-		persistent="\$2"
-		echo "You need to authenticate as root to use --persistent"
-		sudo -v || (echo "You need to be root to use --persistent"; exit 1)
-		echo "Authenticated as root!"
-		shift
 		shift
 		;;
 	--base)
@@ -93,9 +84,6 @@ PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
 tail -n+\$PAYLOAD_LINE \$0 | tar -x -C \$out
 
 # Resolve any relative paths here before they get destroyed!!!!
-if [ -n "\$persistent" ]; then
-	persistent=\$(realpath \$persistent)
-fi
 
 base=\$(realpath \$base)
 
@@ -121,15 +109,7 @@ bargs=()
 bargs+=( "--overlay-src" )
 bargs+=( "\$base" )
 
-if [ -n \$persistent ]; then
-	mkdir -p work overlay
-	bargs+=( "--overlay" )
-	bargs+=( "rootfs" )
-	bargs+=( "work" )
-	bargs+=( "/" )
-else
-	bargs+=( "--tmp-overlay /" )
-fi
+bargs+=( "--tmp-overlay /" )
 
 bargs+=( "--chdir" )
 bargs+=( "\$bwrap_chdir" )
@@ -152,19 +132,7 @@ bwrap "\${bargs[@]}"
 ####################################
 cd \$user_cwd
 
-# Repackage self if persistent flag is set
-
-if [ -n "\$persistent" ]; then
-	head -n \$((\$PAYLOAD_LINE - 1)) \$0 > \$persistent # Create the self extracting script
-	tar --exclude="./work" --strip-components 1 -cvf - -C \$out . >> \$persistent # Create the tarball
-	chmod +x \$persistent
-fi
-
-if [ -n \$persistent ]; then
-	sudo rm -rf \$out
-else
-	rm -rf \$out/
-fi
+rm -rf \$out/
 
 exit 0
 __PAYLOAD_BELOW__\n"
