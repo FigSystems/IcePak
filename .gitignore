@@ -2,3 +2,4 @@
 /Tests
 /base_img
 squashfs-root
+self/self.app

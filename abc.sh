@@ -36,6 +36,9 @@ $(tar -cvf $payload -C $payload_in . || exit 1)
 
 cat <<EOF > "$tmp"
 #!/bin/bash
+# AppBundle<->AppBundle<->AppBundle<->AppBundle
+
+# identifier string is above.
 
 cmd="/AppRun"
 POSITIONAL_ARGS=()
