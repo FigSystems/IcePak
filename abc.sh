@@ -26,6 +26,12 @@ done
 
 set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
 
+[ -n "$1" ] || (echo "Usage: $0 directory output_file")
+[ -n "$2" ] || (echo "Usage: $0 directory output_file")
+
+[ -n "$1" ] || exit 1
+[ -n "$2" ] || exit 1
+
 payload_in=$1
 script=$2
 tmp=__extract__$RANDOM
@@ -91,7 +97,6 @@ tail -n+\$PAYLOAD_LINE \$0 | tar -x -C \$out
 base=\$(realpath \$base)
 
 cd \$out
-ls
 
 # Process optional args before sandbox
 bwrap_chdir=\$user_cwd
