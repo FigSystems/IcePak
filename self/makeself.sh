@@ -3,9 +3,9 @@
 rm -Rf self
 mkdir self
 mkdir self/rootfs
-cp ../abc.sh self/rootfs/AppRun
+cp ../ipak-creater.sh self/rootfs/AppRun
 
 # To be expanded upon
 
-../abc.sh self self.app
+../ipak-creater.sh self self.app
 rm -Rf self
