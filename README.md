@@ -1,6 +1,6 @@
-# App Bundle Creator
+# IcePak Creater
 
-This is a shell script that creates a self extracting archive that sandboxes and runs an app. The benefit of this over AppImages is that you don't have to do intrusive binary patching to get the application to function correctly. This works by overlaying the root directory `/` underneath the rootfs for the app, making the app think it is normally installed. AppBundles follow the **one file = one app** principle very strongly.
+This is a shell script that creates a self extracting archive that sandboxes and runs an app. The benefit of this over AppImages is that you don't have to do intrusive binary patching to get the application to function correctly. This works by overlaying the root directory `/` underneath the rootfs for the app, making the app think it is normally installed. IcePaks follow the **one file = one app** principle very strongly.
 
 ## Usage
 
