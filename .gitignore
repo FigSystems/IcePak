@@ -3,3 +3,5 @@
 /base_img
 squashfs-root
 self/self.app
+__ipak_cache__
+firefox.app

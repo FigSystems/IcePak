@@ -42,7 +42,7 @@ $(tar -cvf $payload -C $payload_in . || exit 1)
 
 cat <<EOF > "$tmp"
 #!/bin/bash
-# AppBundle<->AppBundle<->AppBundle<->AppBundle
+# IPak<->IPak<->IPak<->IPak
 
 # identifier string is above.
 
@@ -55,19 +55,19 @@ custom_base="false"
 
 while [[ \$# -gt 0 ]]; do
   case \$1 in
-	--appbundle-help)
+	--ipak-help)
 		echo "Usage: \$0 [arguments to contained command...]"
-		echo "--appbundle-help      show this help text"
-		echo "--appbundle-shell     run an interactive shell in the bundle"
-		echo "--base dir            base directory for overlay"
+		echo "--ipak-help         show this help text"
+		echo "--ipak-shell        run an interactive shell in the bundle"
+		echo "--base dir          base directory for overlay"
 		shift
 		exit 0
 		;;
-	--appbundle-shell)
+	--ipak-shell)
 		cmd="/bin/bash"
 		shift
 		;;
-	--base)
+	--ipak-base)
 		base="\$2"
 		custom_base="true"
 		shift
