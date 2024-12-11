@@ -2,6 +2,8 @@
 
 POSITIONAL_ARGS=()
 
+cmd=""
+
 while [[ $# -gt 0 ]]; do
   case $1 in
 	-h | --help)
@@ -9,6 +11,11 @@ while [[ $# -gt 0 ]]; do
 		echo "-h, --help      show this help text"
 		shift
 		exit 0
+		;;
+	--cmd)
+		cmd="$2"
+		shift
+		shift
 		;;
     -*|--*)
       echo "Unknown option $1"
@@ -58,6 +65,7 @@ ls "${pkg_out}/rootfs"
 sudo arch-chroot "${pkg_out}/rootfs" /bin/bash <<EOF
 apt update -y
 apt install -y $1
+$cmd
 EOF
 
 # sudo umount "$merged"

@@ -136,6 +136,9 @@ bargs+=( "--share-net" )
 bargs+=( "--dev" )
 bargs+=( "/dev" )
 
+bargs+=( "--proc" )
+bargs+=( "/proc" )
+
 bargs+=( "\$cmd" )
 bargs+=( "\${@:1}" )
 
