@@ -42,7 +42,7 @@ echo "Please authenticate at the sudo prompt."
 # Check if the __ipak_cache__/dbase directory exists
 if [ ! -d "__ipak_cache__/dbase" ]; then
 	mkdir -p "__ipak_cache__/dbase"
-	sudo debootstrap stable __ipak_cache__/dbase http://deb.debian.org/debian
+	sudo debootstrap --variant=minbase stable __ipak_cache__/dbase http://deb.debian.org/debian
 fi
 
 pkg_out=$(mktemp -d)
@@ -57,6 +57,7 @@ sudo arch-chroot "$merged" /bin/bash <<EOF
 apt update -y
 apt install -y $1
 apt reinstall -y libc6 libc6-dev libc6-dbg
+touch \$(dpkg-query -L libc6 | tr '\n' ' ')
 EOF
 
 sudo umount "$merged"

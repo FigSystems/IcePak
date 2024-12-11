@@ -114,8 +114,8 @@ fi
 ####################################
 
 bargs=()
-bargs+=( "--overlay-src" )
-bargs+=( "\$base" )
+# bargs+=( "--overlay-src" )
+# bargs+=( "\$base" )
 
 bargs+=( "--overlay-src" )
 bargs+=( "\$out/rootfs" )
