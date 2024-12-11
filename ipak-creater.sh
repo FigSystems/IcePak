@@ -114,8 +114,6 @@ fi
 ####################################
 
 bargs=()
-# bargs+=( "--overlay-src" )
-# bargs+=( "\$base" )
 
 bargs+=( "--overlay-src" )
 bargs+=( "\$out/rootfs" )
@@ -123,8 +121,10 @@ bargs+=( "\$out/rootfs" )
 bargs+=( "--tmp-overlay" )
 bargs+=( "/" )
 
-bargs+=( "--chdir" )
-bargs+=( "\$bwrap_chdir" )
+# Deprecated for know, as we cannot verify that the path exists in the chroot
+# TODO: Check if path exists within chroot, and chdir if it does
+# bargs+=( "--chdir" )
+# bargs+=( "\$bwrap_chdir" )
 
 bargs+=( "--unshare-all" )
 

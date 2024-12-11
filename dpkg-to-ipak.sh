@@ -47,26 +47,26 @@ fi
 
 pkg_out=$(mktemp -d)
 mkdir -p "${pkg_out}/rootfs"
-workdir=$(mktemp -d)
-merged=$(mktemp -d)
-sudo mount -t overlay overlay \
- -o lowerdir="__ipak_cache__/dbase",upperdir="${pkg_out}/rootfs",workdir="$workdir" \
- "$merged"
+sudo cp -r __ipak_cache__/dbase/* ${pkg_out}/rootfs/
+ls "${pkg_out}/rootfs"
+# workdir=$(mktemp -d)
+# merged=$(mktemp -d)
+# sudo mount -t overlay overlay \
+#  -o lowerdir="__ipak_cache__/dbase",upperdir="${pkg_out}/rootfs",workdir="$workdir" \
+#  "$merged"
 
-sudo arch-chroot "$merged" /bin/bash <<EOF
+sudo arch-chroot "${pkg_out}/rootfs" /bin/bash <<EOF
 apt update -y
 apt install -y $1
-apt reinstall -y libc6 libc6-dev libc6-dbg
-touch \$(dpkg-query -L libc6 | tr '\n' ' ')
 EOF
 
-sudo umount "$merged"
-if [ $? -ne 0 ]; then
-	sleep 4
-	sudo umount "$merged"
-fi
-sudo rm -Rf "$merged"
-sudo rm -Rf "$workdir"
+# sudo umount "$merged"
+# if [ $? -ne 0 ]; then
+# 	sleep 4
+# 	sudo umount "$merged"
+# fi
+# sudo rm -Rf "$merged"
+# sudo rm -Rf "$workdir"
 
 
 cat <<EOF > "$pkg_out/rootfs/AppRun"
@@ -75,6 +75,9 @@ $2 \$@
 exit \$?
 EOF
 chmod +x "$pkg_out/rootfs/AppRun"
+
+sudo rm -Rf "$pkg_out/rootfs/dev"
+mkdir "$pkg_out/rootfs/dev"
 
 sudo chown -R "$USER":"$USER" "$pkg_out"
 ./ipak-creater.sh "$pkg_out" "$3"
