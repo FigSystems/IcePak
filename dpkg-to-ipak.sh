@@ -54,9 +54,9 @@ sudo mount -t overlay overlay \
  "$merged"
 
 sudo arch-chroot "$merged" /bin/bash <<EOF
-apt update
+apt update -y
 apt install -y $1
-apt reinstall libc6
+apt reinstall -y libc6 libc6-dev libc6-dbg
 EOF
 
 sudo umount "$merged"
@@ -68,11 +68,12 @@ sudo rm -Rf "$merged"
 sudo rm -Rf "$workdir"
 
 
-cat <<EOF > "$pkg_out/AppRun"
+cat <<EOF > "$pkg_out/rootfs/AppRun"
 #!/bin/bash
 $2 \$@
 exit \$?
 EOF
+chmod +x "$pkg_out/rootfs/AppRun"
 
 sudo chown -R "$USER":"$USER" "$pkg_out"
 ./ipak-creater.sh "$pkg_out" "$3"
