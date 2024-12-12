@@ -133,11 +133,45 @@ bargs+=( "bubblewrapped" )
 
 bargs+=( "--share-net" )
 
-bargs+=( "--dev" )
+# bargs+=( "--dev" )
+# bargs+=( "/dev" )
+
+bargs+=( "--bind" )
+bargs+=( "/dev" )
 bargs+=( "/dev" )
 
 bargs+=( "--proc" )
 bargs+=( "/proc" )
+
+bargs+=( "--tmpfs" )
+bargs+=( "/tmp" )
+
+# bargs+=( "--bind" )
+# bargs+=( "/tmp/.X11-unix/" )
+# bargs+=( "/tmp/.X11-unix" )
+# bargs+=( "--setenv" )
+# bargs+=( "DISPLAY" )
+# bargs+=( "\$DISPLAY" )
+
+bargs+=( "--bind" )
+bargs+=( "\$XDG_RUNTIME_DIR" )
+bargs+=( "\$XDG_RUNTIME_DIR" )
+
+bargs+=( "--bind" )
+bargs+=( "\$HOME" )
+bargs+=( "\$HOME" )
+
+bargs+=( "--setenv" )
+bargs+=( "XDG_RUNTIME_DIR" )
+bargs+=( "\$XDG_RUNTIME_DIR" )
+
+bargs+=( "--setenv" )
+bargs+=( "XDG_SESSION_TYPE" )
+bargs+=( "\$XDG_SESSION_TYPE" )
+
+bargs+=( "--setenv" )
+bargs+=( "HOME" )
+bargs+=( "\$HOME" )
 
 bargs+=( "\$cmd" )
 bargs+=( "\${@:1}" )
