@@ -51,7 +51,6 @@ POSITIONAL_ARGS=()
 extract_icon=""
 persistent=""
 base="/tmp/root"
-custom_base="false"
 
 while [[ \$# -gt 0 ]]; do
   case \$1 in
@@ -65,12 +64,6 @@ while [[ \$# -gt 0 ]]; do
 		;;
 	--ipak-shell)
 		cmd="/bin/bash"
-		shift
-		;;
-	--ipak-base)
-		base="\$2"
-		custom_base="true"
-		shift
 		shift
 		;;
     -*|--*)
@@ -94,89 +87,38 @@ tail -n+\$PAYLOAD_LINE \$0 | tar -x -C \$out
 
 # Resolve any relative paths here before they get destroyed!!!!
 
-base=\$(realpath \$base)
 
 cd \$out
 
 # Process optional args before sandbox
 bwrap_chdir=\$user_cwd
 
-if [ "\$custom_base" = "true" ]; then
-	# User provided base image
-	if [ ! -d "\$base" ]; then
-		echo "Base directory does not exist: \$base"
-		exit 1
-	fi
-
-	bwrap_chdir="/"
-fi
-
 ####################################
 
-bargs=()
-
-bargs+=( "--overlay-src" )
-bargs+=( "\$out/rootfs" )
-
-bargs+=( "--tmp-overlay" )
-bargs+=( "/" )
-
-# Deprecated for know, as we cannot verify that the path exists in the chroot
-# TODO: Check if path exists within chroot, and chdir if it does
-# bargs+=( "--chdir" )
-# bargs+=( "\$bwrap_chdir" )
-
-bargs+=( "--unshare-all" )
-
-bargs+=( "--hostname" )
-bargs+=( "bubblewrapped" )
-
-bargs+=( "--share-net" )
-
-# bargs+=( "--dev" )
-# bargs+=( "/dev" )
-
-bargs+=( "--bind" )
-bargs+=( "/dev" )
-bargs+=( "/dev" )
-
-bargs+=( "--proc" )
-bargs+=( "/proc" )
-
-bargs+=( "--tmpfs" )
-bargs+=( "/tmp" )
-
-# bargs+=( "--bind" )
-# bargs+=( "/tmp/.X11-unix/" )
-# bargs+=( "/tmp/.X11-unix" )
-# bargs+=( "--setenv" )
-# bargs+=( "DISPLAY" )
-# bargs+=( "\$DISPLAY" )
-
-bargs+=( "--bind" )
-bargs+=( "\$XDG_RUNTIME_DIR" )
-bargs+=( "\$XDG_RUNTIME_DIR" )
-
-bargs+=( "--bind" )
-bargs+=( "\$HOME" )
-bargs+=( "\$HOME" )
-
-bargs+=( "--setenv" )
-bargs+=( "XDG_RUNTIME_DIR" )
-bargs+=( "\$XDG_RUNTIME_DIR" )
-
-bargs+=( "--setenv" )
-bargs+=( "XDG_SESSION_TYPE" )
-bargs+=( "\$XDG_SESSION_TYPE" )
-
-bargs+=( "--setenv" )
-bargs+=( "HOME" )
-bargs+=( "\$HOME" )
-
-bargs+=( "\$cmd" )
-bargs+=( "\${@:1}" )
-
-bwrap "\${bargs[@]}"
+# Inspired by pelf :D
+bwrap --bind \$out/rootfs / \
+ --bind /tmp /tmp \
+ --proc /proc \
+ --dev-bind /dev /dev \
+ --bind /run /run \
+ --bind-try /media /media \
+ --bind-try /mnt /mnt \
+ --bind-try /home /home \
+ --bind-try /opt /opt \
+ --bind-try /Users /Users \
+ --bind-try /sys /sys \
+ --ro-bind-try /etc/resolv.conf /etc/resolv.conf \
+ --ro-bind-try /etc/hosts /etc/hosts \
+ --ro-bind-try /etc/nsswitch.conf /etc/nsswitch.conf \
+ --ro-bind-try /etc/machine-id /etc/machine-id \
+ --ro-bind-try /etc/asound.conf /etc/asound.conf \
+ --ro-bind-try /etc/hostname /etc/hostname \
+ --ro-bind-try /usr/share/fontconfig /usr/share/fontconfig \
+ --ro-bind-try /usr/share/fonts /usr/share/fonts \
+ --ro-bind-try /usr/share/themes /usr/share/themes \
+ --setenv XDG_RUNTIME_DIR \$XDG_RUNTIME_DIR \
+ --share-net \
+	\$cmd \${@:1}
 
 ####################################
 cd \$user_cwd
