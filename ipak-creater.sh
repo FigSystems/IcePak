@@ -116,7 +116,20 @@ bwrap --bind \$out/rootfs / \
  --ro-bind-try /usr/share/fontconfig /usr/share/fontconfig \
  --ro-bind-try /usr/share/fonts /usr/share/fonts \
  --ro-bind-try /usr/share/themes /usr/share/themes \
- --setenv XDG_RUNTIME_DIR \$XDG_RUNTIME_DIR \
+ --setenv XDG_RUNTIME_DIR "\$XDG_RUNTIME_DIR" \
+ --setenv HOME "\$HOME" \
+ --setenv XDG_CACHE_HOME "\$XDG_CACHE_HOME" \
+ --setenv XDG_CONFIG_HOME "\$XDG_CONFIG_HOME" \
+ --setenv XDG_DATA_HOME "\$XDG_DATA_HOME" \
+ --setenv XDG_BIN_HOME "\$XDG_BIN_HOME" \
+ --setenv XDG_MUSIC_DIR "\$XDG_MUSIC_DIR" \
+ --setenv XDG_PICTURES_DIR "\$XDG_PICTURES_DIR" \
+ --setenv XDG_VIDEOS_DIR "\$XDG_VIDEOS_DIR" \
+ --setenv XDG_DESKTOP_DIR "\$XDG_DESKTOP_DIR" \
+ --setenv XDG_DOCUMENTS_DIR "\$XDG_DOCUMENTS_DIR" \
+ --setenv XDG_DOWNLOAD_DIR "\$XDG_DOWNLOAD_DIR" \
+ --setenv XDG_TEMPLATES_DIR "\$XDG_TEMPLATES_DIR" \
+ --setenv XDG_PUBLICSHARE_DIR "\$XDG_PUBLICSHARE_DIR" \
  --share-net \
 	\$cmd \${@:1}
 

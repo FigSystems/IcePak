@@ -99,9 +99,9 @@ mkdir -p "${pkg_out}/rootfs"
 sudo cp -r $base/* ${pkg_out}/rootfs/
 ls "${pkg_out}/rootfs"
 
-mkdir -p $out/rootfs/etc
-sudo touch $out/rootfs/etc/resolv.conf
-sudo mount --bind /etc/resolv.conf $out/rootfs/etc/resolv.conf
+mkdir -p $pkg_out/rootfs/etc
+sudo touch $pkg_out/rootfs/etc/resolv.conf
+sudo mount --bind /etc/resolv.conf $pkg_out/rootfs/etc/resolv.conf
 
 if [ "$dist" == "debian" ]; then
 	sudo arch-chroot "${pkg_out}/rootfs" /bin/bash <<EOF
@@ -124,7 +124,7 @@ fi
 
 
 
-sudo umount \$out/rootfs/etc/resolv.conf
+sudo umount $pkg_out/rootfs/etc/resolv.conf
 cat <<EOF > "$pkg_out/rootfs/AppRun"
 #!/bin/bash
 $2 \$@
