@@ -49,8 +49,7 @@ cat <<EOF > "$tmp"
 cmd="/AppRun"
 POSITIONAL_ARGS=()
 extract_icon=""
-persistent=""
-base="/tmp/root"
+cmd="/AppRun"
 
 while [[ \$# -gt 0 ]]; do
   case \$1 in
@@ -58,12 +57,12 @@ while [[ \$# -gt 0 ]]; do
 		echo "Usage: \$0 [arguments to contained command...]"
 		echo "--ipak-help         show this help text"
 		echo "--ipak-shell        run an interactive shell in the bundle"
-		echo "--base dir          base directory for overlay"
 		shift
 		exit 0
 		;;
 	--ipak-shell)
-		cmd="/bin/bash"
+		echo "Running interactive shell..."
+		cmd="/bin/sh"
 		shift
 		;;
     -*|--*)
@@ -86,9 +85,16 @@ PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
 tail -n+\$PAYLOAD_LINE \$0 | tar -x -C \$out
 
 # Resolve any relative paths here before they get destroyed!!!!
-
+selfpath=\$(realpath \$0)
 
 cd \$out
+
+if [ "\$1" == "commit" ]; then
+	rm -rf "\$out/.mutable"
+fi
+if [ "\$1" == "shell" ]; then
+	cmd="\${@:2}"
+fi
 
 # Process optional args before sandbox
 bwrap_chdir=\$user_cwd
@@ -131,12 +137,22 @@ bwrap --bind \$out/rootfs / \
  --setenv XDG_TEMPLATES_DIR "\$XDG_TEMPLATES_DIR" \
  --setenv XDG_PUBLICSHARE_DIR "\$XDG_PUBLICSHARE_DIR" \
  --share-net \
-	\$cmd \${@:1}
+ /bin/sh -c "\$cmd"
 
 ####################################
-cd \$user_cwd
 
+if [ -f "\$out/.mutable" ] || [ "\$1" == "commit" ]; then
+	tmp_self_out=\$(mktemp)
+	head -n \$((\$PAYLOAD_LINE - 1)) \$selfpath > \$tmp_self_out # Create the self extracting script
+	tar -cf - -C \$out . >> \$tmp_self_out # Create the tarball
+	chmod +x \$tmp_self_out
+	mv -f \$tmp_self_out \$selfpath
+fi
+
+cd /
 rm -rf \$out/
+
+cd \$user_cwd
 
 exit 0
 __PAYLOAD_BELOW__\n"

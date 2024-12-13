@@ -126,11 +126,12 @@ fi
 
 sudo umount $pkg_out/rootfs/etc/resolv.conf
 cat <<EOF > "$pkg_out/rootfs/AppRun"
-#!/bin/bash
+#!/bin/sh
 $2 \$@
 exit \$?
 EOF
 chmod +x "$pkg_out/rootfs/AppRun"
+touch "$pkg_out/.mutable"
 
 sudo rm -Rf "$pkg_out/rootfs/dev"
 mkdir "$pkg_out/rootfs/dev"
