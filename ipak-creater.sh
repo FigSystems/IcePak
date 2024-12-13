@@ -95,12 +95,20 @@ fi
 if [ "\$1" == "shell" ]; then
 	cmd="\${@:2}"
 fi
+if [ "\$1" == "set-entrypoint" ]; then
+	if [ -z "\$2" ]; then
+		echo "Usage: \$0 set-entrypoint path/to/executable"
+		exit 1
+	fi
+	cmd="ln -sfT '\$2' /AppRun"
+fi
 
 # Process optional args before sandbox
 bwrap_chdir=\$user_cwd
 
 ####################################
 
+if [ "\$1" != "commit" ]; then
 # Inspired by pelf :D
 bwrap --bind \$out/rootfs / \
  --bind /tmp /tmp \
@@ -138,7 +146,7 @@ bwrap --bind \$out/rootfs / \
  --setenv XDG_PUBLICSHARE_DIR "\$XDG_PUBLICSHARE_DIR" \
  --share-net \
  /bin/sh -c "\$cmd"
-
+fi
 ####################################
 
 if [ -f "\$out/.mutable" ] || [ "\$1" == "commit" ]; then
