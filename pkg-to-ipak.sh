@@ -62,7 +62,7 @@ fi
 echo "Please authenticate at the sudo prompt."
 
 if [ -z "$dist" ]; then
-	echo "You need to specify a distrobution. using --dist <distro>."
+	echo "You need to specify a distro. using --dist <distro>."
 	echo "What? You think we're just going to pick one for you?"
 	echo "Think again! Hahaha!"
 	echo ";)"
