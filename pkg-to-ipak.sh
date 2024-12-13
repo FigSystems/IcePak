@@ -58,6 +58,8 @@ if [ -z "$3" ]; then
 	exit 1
 fi
 
+ALPINE_URL="https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/x86_64/alpine-minirootfs-3.21.0-x86_64.tar.gz"
+
 
 echo "Please authenticate at the sudo prompt."
 
@@ -80,7 +82,11 @@ if [ "$dist" == "debian" ]; then
 elif [ "$dist" == "alpine" ]; then
 	# Check if the __ipak_cache__/abase directory exists
 	if [ ! -d "__ipak_cache__/abase" ]; then
-		$(cd __ipak_cache__/abase && tar xf alpine-minirootfs*.tar.gz ; cd ../..)
+		mkdir -p "__ipak_cache__/abase"
+		echo "Downloading alpine base..."
+		cd ./__ipak_cache__/abase
+		wget -O- $ALPINE_URL | tar xz
+		cd ../..
 	fi
 	base="__ipak_cache__/abase"
 else
@@ -93,6 +99,9 @@ mkdir -p "${pkg_out}/rootfs"
 sudo cp -r $base/* ${pkg_out}/rootfs/
 ls "${pkg_out}/rootfs"
 
+mkdir -p $out/rootfs/etc
+sudo touch $out/rootfs/etc/resolv.conf
+sudo mount --bind /etc/resolv.conf $out/rootfs/etc/resolv.conf
 
 if [ "$dist" == "debian" ]; then
 	sudo arch-chroot "${pkg_out}/rootfs" /bin/bash <<EOF
@@ -105,6 +114,7 @@ EOF
 elif [ "$dist" == "alpine" ]; then
 	sudo arch-chroot "${pkg_out}/rootfs" /bin/sh <<EOF
 
+PATH="$PATH:/sbin"
 apk update
 apk add $1
 $cmd
@@ -114,7 +124,7 @@ fi
 
 
 
-
+sudo umount \$out/rootfs/etc/resolv.conf
 cat <<EOF > "$pkg_out/rootfs/AppRun"
 #!/bin/bash
 $2 \$@
