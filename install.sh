@@ -1,5 +1,5 @@
 #!/bin/bash
 
-sudo cp -f build-ipak.sh /usr/local/bin/build-ipak
-sudo cp -f dist-to-ipak.sh /usr/local/bin/dist-to-ipak
-sudo cp -f ipak-creater.sh /usr/local/bin/ipak-creater
+cp -f build-ipak.sh "$HOME/.local/bin/build-ipak"
+cp -f dist-to-ipak.sh "$HOME/.local/bin/dist-to-ipak"
+cp -f ipak-creater.sh "$HOME/.local/bin/ipak-creater"
