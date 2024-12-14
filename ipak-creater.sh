@@ -48,6 +48,7 @@ cat <<EOF > "$tmp"
 
 cmd="/AppRun"
 POSITIONAL_ARGS=()
+ALL_ARGS=()
 extract_icon=""
 cmd="/AppRun"
 
@@ -66,17 +67,21 @@ while [[ \$# -gt 0 ]]; do
 		shift
 		;;
     -*|--*)
-      echo "Unknown option \$1"
-      exit 1
+    #   echo "Unknown option \$1"
+    #   exit 1
+	  ALL_ARGS+=("\$1")
       ;;
     *)
       POSITIONAL_ARGS+=("\$1") # save positional arg
+	  ALL_ARGS+=("\$1")
       shift # past argument
       ;;
   esac
 done
 
 set -- "\${POSITIONAL_ARGS[@]}" # restore positional parameters
+
+cmd="\$cmd \${ALL_ARGS[@]}"
 
 user_cwd="\$(pwd)"
 out=\$(mktemp -d)
