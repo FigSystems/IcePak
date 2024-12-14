@@ -117,7 +117,7 @@ fi
 # Process optional args before sandbox
 bwrap_chdir=\$user_cwd
 
-if [ "\${bwrap_chdir:0:5}" != "/home" ]; then
+if [ "\${bwrap_chdir:0:5}" != "/home" ] && [ "\${bwrap_chdir:0:6}" != "/Users" ]; then
 	bwrap_chdir="/"
 fi
 
