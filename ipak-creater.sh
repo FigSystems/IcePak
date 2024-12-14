@@ -162,6 +162,8 @@ bwrap --bind \$out/rootfs / \
  --setenv XDG_DATA_DIRS "\$XDG_DATA_DIRS" \
  --setenv PATH "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/local/games:$HOME/.local/bin" \
  --setenv TERM "\$TERM" \
+ --setenv LANG "\$LANG" \
+ --setenv LANGUAGE "\$LANGUAGE" \
  --share-net \
  --chdir \$bwrap_chdir \
  /bin/sh -c "\$cmd"
