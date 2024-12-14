@@ -149,6 +149,8 @@ bwrap --bind \$out/rootfs / \
  --setenv XDG_DOWNLOAD_DIR "\$XDG_DOWNLOAD_DIR" \
  --setenv XDG_TEMPLATES_DIR "\$XDG_TEMPLATES_DIR" \
  --setenv XDG_PUBLICSHARE_DIR "\$XDG_PUBLICSHARE_DIR" \
+ --setenv PATH "/bin:/sbin:/usr/bin:/usr/sbin" \
+ --setenv TERM "\$TERM" \
  --share-net \
  /bin/sh -c "\$cmd"
 fi
