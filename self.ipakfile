@@ -1,5 +1,5 @@
 < alpine
-> build-ipak.app
+> build-ipak.ipak
 
 shell apk add --no-cache bash bubblewrap
 cp dist-to-ipak.sh usr/bin/dist-to-ipak
