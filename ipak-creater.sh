@@ -145,6 +145,7 @@ bwrap --bind \$out/rootfs / \
  --ro-bind-try /etc/hostname /etc/hostname \
  --ro-bind-try /usr/share/fontconfig /usr/share/fontconfig \
  --ro-bind-try /usr/share/fonts /usr/share/fonts \
+ --ro-bind-try /lib/firmware /lib/firmware \
  --setenv XDG_RUNTIME_DIR "\$XDG_RUNTIME_DIR" \
  --setenv HOME "\$HOME" \
  --setenv XDG_CACHE_HOME "\$XDG_CACHE_HOME" \

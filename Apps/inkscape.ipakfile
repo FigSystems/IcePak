@@ -5,6 +5,8 @@ shell apk update
 shell apk add --no-cache inkscape adwaita-icon-theme
 shell update-mime-database /usr/share/mime
 shell apk add --no-cache shared-mime-info
+shell gtk-update-icon-cache /usr/share/icons/Adwaita
+shell gtk-update-icon-cache /usr/share/icons/hicolor
 set-entrypoint /usr/bin/inkscape
 
 commit
