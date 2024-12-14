@@ -92,7 +92,6 @@ cp -r $base/!(dev) ${pkg_out}/rootfs/
 ls "${pkg_out}/rootfs"
 
 mkdir -p $pkg_out/rootfs/etc
-sudo touch $pkg_out/rootfs/etc/resolv.conf
 
 touch "$pkg_out/.mutable"
 

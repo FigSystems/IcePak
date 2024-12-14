@@ -1,15 +1,12 @@
 #!/bin/bash
 
-rm -Rf self
-mkdir self
-mkdir self/rootfs
-cp ../ipak-creater.sh self/rootfs/
-cp ../dist-to-ipak.sh self/rootfs/
-cp ../build.sh self/rootfs/
+mkdir -p self
 
-ln -sf build.sh self/rootfs/AppRun
+cp ../dist-to-ipak.sh self/dist-to-ipak.sh
+cp ../ipak-creater.sh self/ipak-creater.sh
+cp ../build.sh self/build.sh
 
-# To be expanded upon
+read -p "Make the changes and press enter to continue..."
 
-../ipak-creater.sh self self.app
-rm -Rf self
+cd ..
+./build.sh --file self/self.ipakfile

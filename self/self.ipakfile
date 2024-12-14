@@ -1,9 +1,9 @@
 < alpine
 > self.app
 
-shell apk add --no-cache bash
-cp ./dist-to-ipak.sh dist-to-ipak.sh
-cp ./ipak-creater.sh ipak-creater.sh
-cp ./build.sh build.sh
-set-entrypoint /build.sh
+shell apk add --no-cache bash bubblewrap
+cp self/self/dist-to-ipak.sh usr/bin/dist-to-ipak
+cp self/self/ipak-creater.sh usr/bin/ipak-creater
+cp self/self/build.sh usr/bin/build
+set-entrypoint /usr/bin/build
 commit
