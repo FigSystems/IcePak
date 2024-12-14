@@ -111,6 +111,10 @@ fi
 # Process optional args before sandbox
 bwrap_chdir=\$user_cwd
 
+if [ "\${bwrap_chdir:5}" != "/home" ] && [ "\${bwrap_chdir:6}" != "/Users" ]; then
+	bwrap_chdir="/"
+fi
+
 ####################################
 
 if [ "\$1" != "commit" ]; then
@@ -152,6 +156,7 @@ bwrap --bind \$out/rootfs / \
  --setenv PATH "/bin:/sbin:/usr/bin:/usr/sbin" \
  --setenv TERM "\$TERM" \
  --share-net \
+ --chdir \$bwrap_chdir \
  /bin/sh -c "\$cmd"
 fi
 ####################################

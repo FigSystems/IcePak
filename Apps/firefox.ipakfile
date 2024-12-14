@@ -1,0 +1,8 @@
+< alpine
+> Out/firefox.ipak
+
+shell apk update
+shell apk add firefox
+set-entrypoint /usr/bin/firefox
+
+commit

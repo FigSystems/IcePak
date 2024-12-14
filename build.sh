@@ -80,7 +80,7 @@ while IFS='' read -r line; do
 	fi
 
 	if [ "$created_output_file" == "false" ]; then
-		./dist-to-ipak.sh --dist "$distro" --out "$output_file" || exit 243
+		/dist-to-ipak.sh --dist "$distro" --out "$output_file" || exit 243
 		created_output_file="true"
 	fi
 
