@@ -5,11 +5,12 @@ POSITIONAL_ARGS=()
 
 cmd=""
 dist=""
+out=""
 
 while [[ $# -gt 0 ]]; do
   case $1 in
 	-h | --help)
-		echo "Usage: $0 pkgname command output_file"
+		echo "Usage: $0 --dist <distro> --out output_file"
 		echo "-h, --help      show this help text"
 		echo "--dist          distribution to use for the rootfs"
 		echo "                Run --help-dists for a list of distro/distroless bases"
@@ -24,6 +25,11 @@ while [[ $# -gt 0 ]]; do
 		;;
 	--dist)
 		dist="$2"
+		shift
+		shift
+		;;
+	-o|--out)
+		out="$2"
 		shift
 		shift
 		;;
@@ -48,6 +54,10 @@ if [ -z "$dist" ]; then
 	echo "What? You think we're just going to pick one for you?"
 	echo "Think again! Hahaha!"
 	echo ";)"
+	exit 1
+fi
+if [ -z "$out" ]; then
+	echo "You need to specify an output file. using --out <output_file>."
 	exit 1
 fi
 
@@ -89,7 +99,7 @@ touch "$pkg_out/.mutable"
 mkdir "$pkg_out/rootfs/dev"
 
 # sudo chown -R "$USER":"$USER" "$pkg_out"
-./ipak-creater.sh "$pkg_out" "$1"
+./ipak-creater.sh "$pkg_out" "$output_file"
 
 
 rm -Rf "$pkg_out"
