@@ -145,7 +145,6 @@ bwrap --bind \$out/rootfs / \
  --ro-bind-try /etc/hostname /etc/hostname \
  --ro-bind-try /usr/share/fontconfig /usr/share/fontconfig \
  --ro-bind-try /usr/share/fonts /usr/share/fonts \
- --ro-bind-try /usr/share/themes /usr/share/themes \
  --setenv XDG_RUNTIME_DIR "\$XDG_RUNTIME_DIR" \
  --setenv HOME "\$HOME" \
  --setenv XDG_CACHE_HOME "\$XDG_CACHE_HOME" \
@@ -160,7 +159,8 @@ bwrap --bind \$out/rootfs / \
  --setenv XDG_DOWNLOAD_DIR "\$XDG_DOWNLOAD_DIR" \
  --setenv XDG_TEMPLATES_DIR "\$XDG_TEMPLATES_DIR" \
  --setenv XDG_PUBLICSHARE_DIR "\$XDG_PUBLICSHARE_DIR" \
- --setenv PATH "/bin:/sbin:/usr/bin:/usr/sbin" \
+ --setenv XDG_DATA_DIRS "\$XDG_DATA_DIRS" \
+ --setenv PATH "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/local/games:$HOME/.local/bin" \
  --setenv TERM "\$TERM" \
  --share-net \
  --chdir \$bwrap_chdir \

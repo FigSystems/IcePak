@@ -1,0 +1,10 @@
+< alpine
+> Out/inkscape.ipak
+
+shell apk update
+shell apk add --no-cache inkscape adwaita-icon-theme
+shell update-mime-database /usr/share/mime
+shell apk add --no-cache shared-mime-info
+set-entrypoint /usr/bin/inkscape
+
+commit
