@@ -5,7 +5,7 @@ POSITIONAL_ARGS=()
 
 cmd=""
 dist=""
-out=""
+output_file=""
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -29,7 +29,7 @@ while [[ $# -gt 0 ]]; do
 		shift
 		;;
 	-o|--out)
-		out="$2"
+		output_file="$2"
 		shift
 		shift
 		;;
@@ -56,7 +56,7 @@ if [ -z "$dist" ]; then
 	echo ";)"
 	exit 1
 fi
-if [ -z "$out" ]; then
+if [ -z "$output_file" ]; then
 	echo "You need to specify an output file. using --out <output_file>."
 	exit 1
 fi
