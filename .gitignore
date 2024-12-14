@@ -5,3 +5,4 @@ squashfs-root
 self/self.app
 __ipak_cache__
 /Apps/Out
+self.app

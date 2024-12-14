@@ -70,6 +70,7 @@ while [[ \$# -gt 0 ]]; do
     #   echo "Unknown option \$1"
     #   exit 1
 	  ALL_ARGS+=("\$1")
+	  shift
       ;;
     *)
       POSITIONAL_ARGS+=("\$1") # save positional arg
@@ -92,8 +93,6 @@ tail -n+\$PAYLOAD_LINE \$0 | tar -x -C \$out
 # Resolve any relative paths here before they get destroyed!!!!
 selfpath=\$(realpath \$0)
 
-cd \$out
-
 if [ "\$1" == "commit" ]; then
 	rm -rf "\$out/.mutable"
 fi
@@ -107,6 +106,13 @@ if [ "\$1" == "set-entrypoint" ]; then
 	fi
 	cmd="ln -sfT '\$2' /AppRun"
 fi
+if [ "\$1" == "cp" ]; then
+	if [ -z "\$2" ]; then
+		echo "Usage: \$0 cp source dest"
+		exit 1
+	fi
+	cmd="cp -r '\$(realpath \$2)' '\$out/rootfs/\$3'"
+fi
 
 # Process optional args before sandbox
 bwrap_chdir=\$user_cwd
@@ -115,6 +121,7 @@ if [ "\${bwrap_chdir:5}" != "/home" ] && [ "\${bwrap_chdir:6}" != "/Users" ]; th
 	bwrap_chdir="/"
 fi
 
+cd \$out
 ####################################
 
 if [ "\$1" != "commit" ]; then

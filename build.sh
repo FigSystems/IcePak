@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 POSITIONAL_ARGS=()
 
@@ -45,7 +45,12 @@ fi
 
 if ! file_ends_with_newline "$build_file"; then
 	echo "build file must end with a newline"
-	exit 1
+	read -p "Would you like to add one? (y/N) " REPLY
+	if [[ $REPLY =~ ^[Yy]$ ]]; then
+		echo >> "$build_file"
+	else
+		exit 1
+	fi
 fi
 
 output_file=""
@@ -80,7 +85,7 @@ while IFS='' read -r line; do
 	fi
 
 	if [ "$created_output_file" == "false" ]; then
-		/dist-to-ipak.sh --dist "$distro" --out "$output_file" || exit 243
+		./dist-to-ipak.sh --dist "$distro" --out "$output_file" || exit 243
 		created_output_file="true"
 	fi
 

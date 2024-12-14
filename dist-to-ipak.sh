@@ -99,7 +99,7 @@ touch "$pkg_out/.mutable"
 mkdir "$pkg_out/rootfs/dev"
 
 # sudo chown -R "$USER":"$USER" "$pkg_out"
-/ipak-creater.sh "$pkg_out" "$output_file"
+./ipak-creater.sh "$pkg_out" "$output_file"
 
 
 rm -Rf "$pkg_out"
