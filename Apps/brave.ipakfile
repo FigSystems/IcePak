@@ -1,0 +1,7 @@
+< arch
+> Out/brave.ipak
+
+shell pacman -S curl
+shell curl -fsS https://dl.brave.com/install.sh | sh
+set-entrypoint /usr/bin/brave
+commit

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 # BASEDIR=`dirname "${0}"`
 # cd "$BASEDIR"
@@ -97,7 +97,7 @@ if [ "\$1" == "commit" ]; then
 	rm -rf "\$out/.mutable"
 fi
 if [ "\$1" == "shell" ]; then
-	cmd="\${@:2}"
+	cmd="\${ALL_ARGS[@]:1}"
 fi
 if [ "\$1" == "set-entrypoint" ]; then
 	if [ -z "\$2" ]; then
@@ -120,6 +120,9 @@ bwrap_chdir=\$user_cwd
 if [ "\${bwrap_chdir:0:5}" != "/home" ] && [ "\${bwrap_chdir:0:6}" != "/Users" ]; then
 	bwrap_chdir="/"
 fi
+
+echo "Running command: \$cmd"
+echo "Changing directory to: \$bwrap_chdir"
 
 cd \$out
 ####################################
@@ -165,6 +168,7 @@ bwrap --bind \$out/rootfs / \
  --setenv TERM "\$TERM" \
  --setenv LANG "\$LANG" \
  --setenv LANGUAGE "\$LANGUAGE" \
+ --unshare-all \
  --share-net \
  --chdir \$bwrap_chdir \
  /bin/sh -c "\$cmd"
