@@ -11,6 +11,7 @@ build/alpine-rootfs.tar.gz:
 	ALPINE_URL="https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/x86_64/alpine-minirootfs-3.21.0-x86_64.tar.gz"; \
 	out=$$(mktemp -d); \
 	rootfs=$${out}/rootfs; \
+	mkdir -p $${rootfs}; \
 	wget -O- $${ALPINE_URL} | tar xz -C $${rootfs}; \
 	tar --exclude="./dev/*" -czf $${out}.tar -C $${out} .; \
 	rm -rf $${out}; \
