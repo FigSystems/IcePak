@@ -58,6 +58,7 @@ fi
 output_file=""
 distro=""
 created_output_file="false"
+alt_args=()
 
 while IFS='' read -r line; do
 	if [ -z "$line" ]; then
@@ -81,6 +82,12 @@ while IFS='' read -r line; do
 		continue
 	fi
 
+	if [ "${line:0:2}" == "& " ]; then
+		alt_arg="${line:2}"
+		alt_args+=( "$alt_arg" )
+		continue
+	fi
+
 	if [ -z "$output_file" ] || [ -z "$distro" ]; then
 		echo "You must specify an output file and distro before other commands!"
 		exit 1
@@ -97,7 +104,10 @@ while IFS='' read -r line; do
 		created_output_file="true"
 	fi
 
-	${output_file} $line
+	${output_file} "${alt_args[@]}" $line
+	if [ $? -ne 0 ]; then
+		exit 1
+	fi
 
 	# "$output_file" "$line"
 

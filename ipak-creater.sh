@@ -51,6 +51,7 @@ POSITIONAL_ARGS=()
 ALL_ARGS=()
 extract_icon=""
 cmd="/AppRun"
+bind_temp="true"
 
 while [[ \$# -gt 0 ]]; do
   case \$1 in
@@ -64,6 +65,10 @@ while [[ \$# -gt 0 ]]; do
 	--ipak-shell)
 		echo "Running interactive shell..."
 		cmd="/bin/sh"
+		shift
+		;;
+	--ipak-no-bind-tmp)
+		bind_temp="false"
 		shift
 		;;
     -*|--*)
@@ -92,6 +97,15 @@ tail -n+\$PAYLOAD_LINE \$0 | tar -x -C \$out
 
 # Resolve any relative paths here before they get destroyed!!!!
 selfpath=\$(realpath \$0)
+
+
+function use_host_tmp() {
+	if [ \${bind_temp} == "true" ]; then
+		return --bind /tmp /tmp
+	fi
+	return --tmpfs /tmp
+}
+
 
 if [ "\$1" == "commit" ]; then
 	rm -rf "\$out/.mutable"
@@ -130,7 +144,7 @@ cd \$out
 if [ "\$1" != "commit" ]; then
 # Inspired by pelf :D
 bwrap --bind \$out/rootfs / \
- --bind /tmp /tmp \
+ \${use_host_tmp} \
  --proc /proc \
  --dev-bind /dev /dev \
  --bind /run /run \
