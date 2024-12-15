@@ -39,6 +39,8 @@ debian-ipak: build/debian.ipak
 
 alpine-ipak: build/alpine.ipak
 
+dists:  debian-ipak alpine-ipak
+
 
 install: ipak-creater.sh build-ipak.sh
 	cp -f build-ipak.sh "$(HOME)/.local/bin/build-ipak"
