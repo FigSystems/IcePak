@@ -168,6 +168,7 @@ bwrap --bind \$out/rootfs / \
  --setenv TERM "\$TERM" \
  --setenv LANG "\$LANG" \
  --setenv LANGUAGE "\$LANGUAGE" \
+ --setenv FAKEROOTDONTTRYCHOWN "1" \
  --unshare-all \
  --share-net \
  --chdir \$bwrap_chdir \
