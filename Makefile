@@ -2,6 +2,7 @@ build/debian-rootfs.tar.gz:
 	out=$$(mktemp -d); \
 	rootfs=$${out}/rootfs; \
 	sudo debootstrap --include=fakeroot stable $${rootfs} http://deb.debian.org/debian; \
+	touch $${out}/.mutable; \
 	sudo chown -R $(USER):$(USER) $${out}; \
 	tar --exclude="./rootfs/dev/*" -czf $${out}.tar -C $${out} .; \
 	rm -rf $${out}; \
@@ -13,6 +14,7 @@ build/alpine-rootfs.tar.gz:
 	rootfs=$${out}/rootfs; \
 	mkdir -p $${rootfs}; \
 	wget -O- $${ALPINE_URL} | tar xz -C $${rootfs}; \
+	touch $${out}/.mutable; \
 	tar --exclude="./dev/*" -czf $${out}.tar -C $${out} .; \
 	rm -rf $${out}; \
 	mv $${out}.tar ./build/alpine-rootfs.tar.gz
