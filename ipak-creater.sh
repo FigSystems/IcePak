@@ -137,7 +137,6 @@ bwrap --bind \$out/rootfs / \
  --bind-try /media /media \
  --bind-try /mnt /mnt \
  --bind-try /home /home \
- --bind-try /opt /opt \
  --bind-try /Users /Users \
  --bind-try /sys /sys \
  --ro-bind-try /etc/resolv.conf /etc/resolv.conf \
