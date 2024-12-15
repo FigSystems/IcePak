@@ -52,6 +52,7 @@ ALL_ARGS=()
 extract_icon=""
 cmd="/AppRun"
 bind_temp="true"
+share_fonts="true"
 
 while [[ \$# -gt 0 ]]; do
   case \$1 in
@@ -69,6 +70,10 @@ while [[ \$# -gt 0 ]]; do
 		;;
 	--ipak-no-bind-tmp)
 		bind_temp="false"
+		shift
+		;;
+	--ipak-no-share-fonts)
+		share_fonts="false"
 		shift
 		;;
     -*|--*)
@@ -104,6 +109,14 @@ function use_host_tmp() {
 		return --bind /tmp /tmp
 	fi
 	return --tmpfs /tmp
+}
+
+function use_host_fonts() {
+	if [ \${share_fonts} == "true" ]; then
+		return --ro-bind-try /usr/share/fontconfig /usr/share/fontconfig \
+				--ro-bind-try /usr/share/fonts /usr/share/fonts
+	fi
+	return
 }
 
 
@@ -159,8 +172,7 @@ bwrap --bind \$out/rootfs / \
  --ro-bind-try /etc/machine-id /etc/machine-id \
  --ro-bind-try /etc/asound.conf /etc/asound.conf \
  --ro-bind-try /etc/hostname /etc/hostname \
- --ro-bind-try /usr/share/fontconfig /usr/share/fontconfig \
- --ro-bind-try /usr/share/fonts /usr/share/fonts \
+ \${use_host_fonts} \
  --ro-bind-try /lib/firmware /lib/firmware \
  --setenv XDG_RUNTIME_DIR "\$XDG_RUNTIME_DIR" \
  --setenv HOME "\$HOME" \
