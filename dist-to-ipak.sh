@@ -67,7 +67,9 @@ if [ "$dist" == "debian" ]; then
 	if [ ! -d "__ipak_cache__/dbase" ]; then
 		mkdir -p "__ipak_cache__/dbase"
 		# echo "Please authenticate at the sudo prompt to create debian base"
-		fakechroot fakeroot debootstrap --variant=fakechroot --include=fakeroot stable __ipak_cache__/dbase http://deb.debian.org/debian
+		fakeroot debootstrap --foreign --include=fakeroot,debootstrap stable __ipak_cache__/dbase http://deb.debian.org/debian
+		bwrap --bind __ipak_cache__/dbase / -- \
+			fakeroot debootstrap --second-stage
 		# chown -R "$USER":"$USER" "__ipak_cache__/dbase"
 	fi
 	base="__ipak_cache__/dbase"
