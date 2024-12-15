@@ -1,5 +1,7 @@
 #!/bin/bash
 
+LATEST_IPACK_VERSION="v0.5.1" # That has distro releases
+
 POSITIONAL_ARGS=()
 
 build_file=""
@@ -85,7 +87,13 @@ while IFS='' read -r line; do
 	fi
 
 	if [ "$created_output_file" == "false" ]; then
-		dist-to-ipak --dist "$distro" --out "$output_file" || exit 243
+		# Fetch distro $distro and output to $output_file
+		wget "https://github.com/FigSystems/IcePak/releases/download/$LATEST_IPACK_VERSION/$distro.ipak" -O $output_file
+		if [ $? -ne 0 ]; then
+			echo "Failed to fetch distro $distro"
+			echo "This could be because the distro doesn't exist or you don't have internet access."
+			exit 243
+		fi
 		created_output_file="true"
 	fi
 

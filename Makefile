@@ -1,33 +1,42 @@
-debian-base:
+build/debian-rootfs.tar.gz:
 	out=$$(mktemp -d); \
-	sudo debootstrap --include=fakeroot stable $${out} http://deb.debian.org/debian; \
+	rootfs=$${out}/rootfs; \
+	sudo debootstrap --include=fakeroot stable $${rootfs} http://deb.debian.org/debian; \
 	sudo chown -R $(USER):$(USER) $${out}; \
-	tar -czf $${out}.tar -C $${out} .; \
+	tar --exclude="./rootfs/dev/*" -czf $${out}.tar -C $${out} .; \
 	rm -rf $${out}; \
 	mv $${out}.tar ./build/debian-rootfs.tar.gz
 
-alpine-base:
-	ALPINE_URL := "https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/x86_64/alpine-minirootfs-3.21.0-x86_64.tar.gz"; \
-	out := $(shell mktemp -d); \
-	wget -O- $(ALPINE_URL) | tar xz -C $${out}; \
-	tar -czf $${out}.tar -C $${out} .; \
+build/alpine-rootfs.tar.gz:
+	ALPINE_URL="https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/x86_64/alpine-minirootfs-3.21.0-x86_64.tar.gz"; \
+	out=$$(mktemp -d); \
+	rootfs=$${out}/rootfs; \
+	wget -O- $${ALPINE_URL} | tar xz -C $${rootfs}; \
+	tar --exclude="./dev/*" -czf $${out}.tar -C $${out} .; \
 	rm -rf $${out}; \
 	mv $${out}.tar ./build/alpine-rootfs.tar.gz
 
-debian-ipak: debian-base
-	out := $(shell mktemp -d); \
+build/debian.ipak: build/debian-rootfs.tar.gz
+	out=$$(mktemp -d); \
 	tar -xzf ./build/debian-rootfs.tar.gz -C $${out}; \
 	ipak-creater $${out} ./build/debian.ipak; \
 	rm -rf $${out};
 
-alpine-ipak: alpine-base
-	out := $(shell mktemp -d); \
+build/alpine.ipak: build/alpine-rootfs.tar.gz
+	out=$$(mktemp -d); \
 	tar -xzf ./build/alpine-rootfs.tar.gz -C $${out}; \
 	ipak-creater $${out} ./build/alpine.ipak; \
 	rm -rf $${out};
 
+debian-base: build/debian-rootfs.tar.gz
 
-install: ipak-creater.sh build-ipak.sh dist-to-ipak.sh
+alpine-base: build/alpine-rootfs.tar.gz
+
+debian-ipak: build/debian.ipak
+
+alpine-ipak: build/alpine.ipak
+
+
+install: ipak-creater.sh build-ipak.sh
 	cp -f build-ipak.sh "$(HOME)/.local/bin/build-ipak"
-	cp -f dist-to-ipak.sh "$(HOME)/.local/bin/dist-to-ipak"
 	cp -f ipak-creater.sh "$(HOME)/.local/bin/ipak-creater"
