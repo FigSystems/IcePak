@@ -81,14 +81,14 @@ elif [ "$dist" == "alpine" ]; then
 		cd ../..
 	fi
 	base="__ipak_cache__/abase"
-elif [ "$dist" == "arch" ]; then
-	# Check if the __ipak_cache__/albase directory exists
-	if [ ! -d "__ipak_cache__/albase" ]; then
-		sudo mkdir -p "__ipak_cache__/albase"
-		sudo pacstrap -K -c "__ipak_cache__/albase" base
-		sudo chown -R "$USER":"$USER" "__ipak_cache__/albase"
-	fi
-	base="__ipak_cache__/albase"
+# elif [ "$dist" == "arch" ]; then
+# 	# Check if the __ipak_cache__/albase directory exists
+# 	if [ ! -d "__ipak_cache__/albase" ]; then
+# 		sudo mkdir -p "__ipak_cache__/albase"
+# 		sudo pacstrap -K -c "__ipak_cache__/albase" base
+# 		sudo chown -R "$USER":"$USER" "__ipak_cache__/albase"
+# 	fi
+# 	base="__ipak_cache__/albase"
 else
 	echo "Unknown distro: $dist"
 	exit 1
