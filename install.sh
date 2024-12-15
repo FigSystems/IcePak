@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 cp -f build-ipak.sh "$HOME/.local/bin/build-ipak"
 cp -f dist-to-ipak.sh "$HOME/.local/bin/dist-to-ipak"
