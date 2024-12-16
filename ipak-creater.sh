@@ -222,6 +222,7 @@ bwrap --bind \$out/rootfs / \
  --share-net \
  /bin/sh -c "\$cmd"
 fi
+fi
 ####################################
 
 if [ -f "\$out/.mutable" ] || [ "\$1" == "commit" ]; then
