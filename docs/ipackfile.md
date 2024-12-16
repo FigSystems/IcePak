@@ -4,6 +4,7 @@ The file should follow this format
 ```
 < distro
 > out.ipak
+& --ipak-some-arg
 
 shell pkg update
 shell pkg install cool-app
@@ -13,7 +14,7 @@ commit
 
 ```
 
-The `< ` means "Use this distribution". The `> ` means "Set the output file to this".
+The `< ` means "Use this distribution". The `> ` means "Set the output file to this". "&" specifies an arg to be passed to the ipak.
 All other lines are directly passed on to the underlying IPak. Currently the commands supported are:
  - `shell ...` Run the following command inside the IPak.
  - `set-entrypoint <path>` Run the following command when the IPak is ran normally.
