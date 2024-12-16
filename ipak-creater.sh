@@ -143,7 +143,7 @@ if [ "\$1" == "cp" ]; then
 		echo "Usage: \$0 cp source dest"
 		exit 1
 	fi
-	cmd="cp -r '\$(realpath \$2)' '\$out/rootfs/\$3'"
+	cmd="cp -r '\$(realpath \$2)' '\$3'"
 fi
 
 # Process optional args before sandbox

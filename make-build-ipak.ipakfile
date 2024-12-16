@@ -2,7 +2,7 @@
 > build/build-ipak.ipak
 
 shell apk update
-shell apk add --no-cache bash
+shell apk add --no-cache bash bubblewrap
 cp ipak-creater.sh /usr/bin/ipak-creater
 cp build-ipak.sh /usr/bin/build-ipak
 
