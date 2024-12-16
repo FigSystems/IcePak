@@ -53,6 +53,7 @@ extract_icon=""
 cmd="/AppRun"
 bind_temp="true"
 share_fonts="true"
+build_mode="false"
 
 while [[ \$# -gt 0 ]]; do
   case \$1 in
@@ -74,6 +75,10 @@ while [[ \$# -gt 0 ]]; do
 		;;
 	--ipak-no-share-fonts)
 		share_fonts="false"
+		shift
+		;;
+	--ipak-build-mode)
+		build_mode="true"
 		shift
 		;;
     -*|--*)
@@ -155,6 +160,7 @@ cd \$out
 ####################################
 
 if [ "\$1" != "commit" ]; then
+if [ "\$build_mode" == "false" ]; then
 # Inspired by pelf :D
 bwrap --bind \$out/rootfs / \
  \${use_host_tmp} \
@@ -197,6 +203,23 @@ bwrap --bind \$out/rootfs / \
  --unshare-all \
  --share-net \
  --chdir \$bwrap_chdir \
+ /bin/sh -c "\$cmd"
+
+else
+# Build mode
+bwrap --bind \$out/rootfs / \
+ --proc /proc \
+ --dev-bind /dev /dev \
+ --ro-bind-try /etc/resolv.conf /etc/resolv.conf \
+ --ro-bind-try /etc/hosts /etc/hosts \
+ --ro-bind-try /etc/nsswitch.conf /etc/nsswitch.conf \
+ --ro-bind-try /etc/machine-id /etc/machine-id \
+ --ro-bind-try /etc/asound.conf /etc/asound.conf \
+ --ro-bind-try /etc/hostname /etc/hostname \
+ --setenv FAKEROOTDONTTRYCHOWN "1" \
+ --setenv TERM "\$TERM" \
+ --unshare-all \
+ --share-net \
  /bin/sh -c "\$cmd"
 fi
 ####################################

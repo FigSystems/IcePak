@@ -104,7 +104,7 @@ while IFS='' read -r line; do
 		created_output_file="true"
 	fi
 
-	${output_file} "${alt_args[@]}" $line
+	${output_file} --ipak-build-mode "${alt_args[@]}" $line
 	if [ $? -ne 0 ]; then
 		exit 1
 	fi
