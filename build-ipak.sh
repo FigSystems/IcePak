@@ -5,19 +5,22 @@ LATEST_IPACK_VERSION="v0.6.0" # That has distro releases
 POSITIONAL_ARGS=()
 
 build_file=""
+distro_file=""
 
 while [[ $# -gt 0 ]]; do
   case $1 in
 	-h | --help)
-		echo "Usage: $0 --file <build_file>"
+		echo "Usage: $0 <build_file>"
+		echo "-h, --help      show this help text"
+		echo "--distro-file     (optional) path to distro file"
 		shift
 		exit 0
 		;;
-	--file)
-	  build_file="$2"
-	  shift
-	  shift
-	  ;;
+	--distro-file)
+		distro_file="$2"
+		shift
+		shift
+		;;
     -*|--*)
       echo "Unknown option $1"
       exit 1
@@ -35,10 +38,12 @@ function file_ends_with_newline() {
     [[ $(tail -c1 "$1" | wc -l) -gt 0 ]]
 }
 
-if [ -z "$build_file" ]; then
-	echo "Usage: $0 --file <build_file>"
+if [ -z "$1" ]; then
+	echo "Usage: $0 <build_file>"
 	exit 1
 fi
+
+build_file="$1"
 
 if [ ! -f "$build_file" ]; then
 	echo "$build_file path not found"
@@ -73,6 +78,12 @@ while IFS='' read -r line; do
 		output_file="${line:2}"
 		output_file="$(realpath $output_file)"
 		echo "Output file: $output_file"
+		if [ -z "$distro_file" ]; then
+			if [ -f "$distro_file" ]; then
+				cp -f "$distro_file" "$output_file"
+				created_output_file="true"
+			fi
+		fi
 		continue
 	fi
 
