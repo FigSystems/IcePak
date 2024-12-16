@@ -1,0 +1,8 @@
+< alpine
+> Out/libreoffice.ipak
+
+shell apk update
+shell apk add --no-cache bash libreoffice util-linux font-droid-nonlatin font-droid ttf-dejavu ttf-freefont ttf-liberation
+set-entrypoint /usr/bin/libreoffice
+
+commit
