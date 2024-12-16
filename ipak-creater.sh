@@ -38,7 +38,7 @@ tmp=__extract__$RANDOM
 payload="__payload__$RANDOM.tar"
 
 echo "Compresssing payload..."
-$(tar -cvf $payload -C $payload_in . || exit 1)
+$(tar -czvf $payload -C $payload_in . || exit 1)
 
 cat <<EOF > "$tmp"
 #!/bin/bash
@@ -103,26 +103,26 @@ user_cwd="\$(pwd)"
 out=\$(mktemp -d)
 
 PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
-tail -n+\$PAYLOAD_LINE \$0 | tar -x -C \$out
+tail -n+\$PAYLOAD_LINE \$0 | tar -xz -C \$out
 
 # Resolve any relative paths here before they get destroyed!!!!
 selfpath=\$(realpath \$0)
 
 
-function use_host_tmp() {
-	if [ \${bind_temp} == "true" ]; then
-		return --bind /tmp /tmp
-	fi
-	return --tmpfs /tmp
-}
+# function use_host_tmp() {
+# 	if [ \${bind_temp} == "true" ]; then
+# 		return --bind /tmp /tmp
+# 	fi
+# 	return --tmpfs /tmp
+# }
 
-function use_host_fonts() {
-	if [ \${share_fonts} == "true" ]; then
-		return --ro-bind-try /usr/share/fontconfig /usr/share/fontconfig \
-				--ro-bind-try /usr/share/fonts /usr/share/fonts
-	fi
-	return
-}
+# function use_host_fonts() {
+# 	if [ \${share_fonts} == "true" ]; then
+# 		return "--ro-bind-try /usr/share/fontconfig /usr/share/fontconfig \
+# 				--ro-bind-try /usr/share/fonts /usr/share/fonts"
+# 	fi
+# 	return
+# }
 
 
 if [ "\$1" == "commit" ]; then
@@ -163,7 +163,7 @@ if [ "\$1" != "commit" ]; then
 if [ "\$build_mode" == "false" ]; then
 # Inspired by pelf :D
 bwrap --bind \$out/rootfs / \
- \${use_host_tmp} \
+ --bind /tmp /tmp \
  --proc /proc \
  --dev-bind /dev /dev \
  --bind /run /run \
@@ -178,7 +178,9 @@ bwrap --bind \$out/rootfs / \
  --ro-bind-try /etc/machine-id /etc/machine-id \
  --ro-bind-try /etc/asound.conf /etc/asound.conf \
  --ro-bind-try /etc/hostname /etc/hostname \
- \${use_host_fonts} \
+ --ro-bind-try /usr/share/fontconfig /usr/share/fontconfig \
+ --ro-bind-try /usr/share/fonts /usr/share/fonts \
+ --ro-bind-try /usr/share/themes /usr/share/themes \
  --ro-bind-try /lib/firmware /lib/firmware \
  --setenv XDG_RUNTIME_DIR "\$XDG_RUNTIME_DIR" \
  --setenv HOME "\$HOME" \
@@ -229,7 +231,7 @@ fi
 if [ -f "\$out/.mutable" ] || [ "\$1" == "commit" ]; then
 	tmp_self_out=\$(mktemp)
 	head -n \$((\$PAYLOAD_LINE - 1)) \$selfpath > \$tmp_self_out # Create the self extracting script
-	tar -cf - -C \$out . >> \$tmp_self_out # Create the tarball
+	tar -czf - -C \$out . >> \$tmp_self_out # Create the tarball
 	chmod +x \$tmp_self_out
 	mv -f \$tmp_self_out \$selfpath
 fi
