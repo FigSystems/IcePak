@@ -96,6 +96,7 @@ while IFS='' read -r line; do
 	if [ "$created_output_file" == "false" ]; then
 		# Fetch distro $distro and output to $output_file
 		wget "https://github.com/FigSystems/IcePak/releases/download/$LATEST_IPACK_VERSION/$distro.ipak" -O $output_file
+		chmod +x $output_file
 		if [ $? -ne 0 ]; then
 			echo "Failed to fetch distro $distro"
 			echo "This could be because the distro doesn't exist or you don't have internet access."

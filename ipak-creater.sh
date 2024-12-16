@@ -217,6 +217,7 @@ bwrap --bind \$out/rootfs / \
  --ro-bind-try /etc/asound.conf /etc/asound.conf \
  --ro-bind-try /etc/hostname /etc/hostname \
  --setenv FAKEROOTDONTTRYCHOWN "1" \
+ --setenv PATH "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/local/games:$HOME/.local/bin" \
  --setenv TERM "\$TERM" \
  --unshare-all \
  --share-net \
