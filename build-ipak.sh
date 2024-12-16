@@ -78,8 +78,9 @@ while IFS='' read -r line; do
 		output_file="${line:2}"
 		output_file="$(realpath $output_file)"
 		echo "Output file: $output_file"
-		if [ -z "$distro_file" ]; then
+		if [ -n "$distro_file" ]; then
 			if [ -f "$distro_file" ]; then
+				echo "Distro file: $distro_file"
 				cp -f "$distro_file" "$output_file"
 				created_output_file="true"
 			fi
