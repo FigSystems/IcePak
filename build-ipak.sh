@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LATEST_IPACK_VERSION="v0.5.1" # That has distro releases
+LATEST_IPACK_VERSION="v0.6.0" # That has distro releases
 
 POSITIONAL_ARGS=()
 

@@ -212,6 +212,8 @@ else
 bwrap --bind \$out/rootfs / \
  --proc /proc \
  --dev-bind /dev /dev \
+ --ro-bind-try /home /home \
+ --ro-bind-try /Users /Users \
  --ro-bind-try /etc/resolv.conf /etc/resolv.conf \
  --ro-bind-try /etc/hosts /etc/hosts \
  --ro-bind-try /etc/nsswitch.conf /etc/nsswitch.conf \
