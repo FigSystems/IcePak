@@ -2,7 +2,7 @@
 > Out/gedit.ipak
 
 shell apk update
-shell apk add --no-cache gedit
+shell apk add --no-cache gedit adwaita-icon-theme
 set-entrypoint /usr/bin/gedit
 
 commit
