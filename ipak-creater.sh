@@ -38,7 +38,7 @@ tmp=__extract__$RANDOM
 payload="__payload__$RANDOM.tar"
 
 echo "Compresssing payload..."
-$(tar -czvf $payload -C $payload_in . || exit 1)
+$(tar -cvf $payload -C $payload_in . || exit 1)
 
 cat <<EOF > "$tmp"
 #!/bin/bash
@@ -103,7 +103,7 @@ user_cwd="\$(pwd)"
 out=\$(mktemp -d)
 
 PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
-tail -n+\$PAYLOAD_LINE \$0 | tar -xz -C \$out
+tail -n+\$PAYLOAD_LINE \$0 | tar -x -C \$out
 
 # Resolve any relative paths here before they get destroyed!!!!
 selfpath=\$(realpath \$0)
@@ -233,7 +233,7 @@ fi
 if [ -f "\$out/.mutable" ] || [ "\$1" == "commit" ]; then
 	tmp_self_out=\$(mktemp)
 	head -n \$((\$PAYLOAD_LINE - 1)) \$selfpath > \$tmp_self_out # Create the self extracting script
-	tar -czf - -C \$out . >> \$tmp_self_out # Create the tarball
+	tar -cf - -C \$out . >> \$tmp_self_out # Create the tarball
 	chmod +x \$tmp_self_out
 	mv -f \$tmp_self_out \$selfpath
 fi
