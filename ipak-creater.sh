@@ -136,7 +136,7 @@ if [ "\$1" == "set-entrypoint" ]; then
 		echo "Usage: \$0 set-entrypoint path/to/executable"
 		exit 1
 	fi
-	cmd="ln -sfT '\$2' /AppRun"
+	cmd="echo '#!/bin/sh' > /AppRun && echo '\${ALL_ARGS[@]:1}' > /AppRun && chmod +x /AppRun"
 fi
 if [ "\$1" == "cp" ]; then
 	if [ -z "\$2" ]; then

@@ -1,0 +1,13 @@
+< debian
+> Out/vscode.ipak
+
+shell fakeroot apt install -y gpg curl
+shell fakeroot curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /microsoft.gpg
+shell fakeroot install -o root -g root -m 644 /microsoft.gpg /etc/apt/keyrings/microsoft-archive-keyring.gpg
+shell fakeroot sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list'
+shell fakeroot apt-get -y update
+shell fakeroot apt-get install -y code # or code-insiders
+
+set-entrypoint code --wait
+
+commit
