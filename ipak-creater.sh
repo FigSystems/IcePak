@@ -100,7 +100,7 @@ set -- "\${POSITIONAL_ARGS[@]}" # restore positional parameters
 cmd="\$cmd \${ALL_ARGS[@]}"
 
 user_cwd="\$(pwd)"
-out=\$(mktemp -d)
+out=\$(mktemp -d -p /var/tmp)
 
 PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
 tail -n+\$PAYLOAD_LINE \$0 | tar -x -C \$out
