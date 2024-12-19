@@ -41,7 +41,7 @@ echo "Compresssing payload..."
 $(tar -cvf $payload -C $payload_in . || exit 1)
 
 cat <<EOF > "$tmp"
-#!/bin/bash
+#!/bin/bash -x
 # IPak<->IPak<->IPak<->IPak
 
 # identifier string is above.
@@ -54,6 +54,7 @@ cmd="/AppRun"
 bind_temp="true"
 share_fonts="true"
 build_mode="false"
+output_is_tar="__OUTPUT_IS_TAR__"
 
 while [[ \$# -gt 0 ]]; do
   case \$1 in
@@ -100,10 +101,22 @@ set -- "\${POSITIONAL_ARGS[@]}" # restore positional parameters
 cmd="\$cmd \${ALL_ARGS[@]}"
 
 user_cwd="\$(pwd)"
-out=\$(mktemp -d -p /var/tmp)
+out=\$(mktemp -d)
 
 PAYLOAD_LINE=\`awk '/^__PAYLOAD_BELOW__/ {print NR + 1; exit 0; }' \$0\`
-tail -n+\$PAYLOAD_LINE \$0 | tar -x -C \$out
+PAYLOAD_BYTE=\$(head -n \$((PAYLOAD_LINE - 1)) \$0 | wc -c)
+
+if [ -n "\$output_is_tar" ]; then
+	tail -n+\$PAYLOAD_LINE \$0 | tar -x -C \$out
+else
+	sqsh_mnt_tmp=\$(mktemp -d)
+	overlayfs_read_write_tmp=\$(mktemp -d)
+	fuse_workdir=\$(mktemp -d)
+	squashfuse \$0 \$sqsh_mnt_tmp -o offset=\$((PAYLOAD_BYTE))
+	# Bwrap needs an overlayfs to function correctly.
+	# unionfs \${overlayfs_read_write_tmp}=RW:\${sqsh_mnt_tmp}=RO \$out
+	overlayfs-fuse -o lowerdir=\${sqsh_mnt_tmp},upperdir=\${overlayfs_read_write_tmp},workdir=\${fuse_workdir} \$out
+fi
 
 # Resolve any relative paths here before they get destroyed!!!!
 selfpath=\$(realpath \$0)
@@ -124,6 +137,33 @@ selfpath=\$(realpath \$0)
 # 	return
 # }
 
+function cleanup() {
+	echo "Cleaning up..."
+	cd /
+	if [ ! -f "\$out/.mutable" ]; then
+		# (overlayfs)
+		umount \$out || true # If this fails it just means the archive isn't mounted
+		# No worries.
+
+		# (tmpfs)
+		if [ -n "\$overlayfs_read_write_tmp" ]; then
+			rm -Rf "\$overlayfs_read_write_tmp"
+		fi
+
+		# (tmpfs)
+		if [ -n "\$fuse_workdir" ]; then
+			rm -Rf "\$fuse_workdir"
+		fi
+
+		# (squashfs)
+		if [ -n "\$sqsh_mnt_tmp" ]; then
+			umount \$sqsh_mnt_tmp || true
+			rm -Rf "\$sqsh_mnt_tmp"
+		fi
+	fi
+	rm -rf "\$out"
+}
+trap cleanup ERR TERM INT KILL EXIT HUP
 
 if [ "\$1" == "commit" ]; then
 	rm -rf "\$out/.mutable"
@@ -163,6 +203,8 @@ if [ "\$1" != "commit" ]; then
 if [ "\$build_mode" == "false" ]; then
 # Inspired by pelf :D
 bwrap --bind \$out/rootfs / \
+ --uid \$(id -u) \
+ --gid \$(id -g) \
  --bind /tmp /tmp \
  --proc /proc \
  --dev-bind /dev /dev \
@@ -233,18 +275,26 @@ fi
 if [ -f "\$out/.mutable" ] || [ "\$1" == "commit" ]; then
 	tmp_self_out=\$(mktemp)
 	head -n \$((\$PAYLOAD_LINE - 1)) \$selfpath > \$tmp_self_out # Create the self extracting script
-	tar -cf - -C \$out . >> \$tmp_self_out # Create the tarball
+	if [ "\$1" == "commit" ]; then
+		tmp_squashfs_out=\$(mktemp)
+		sed -i -e "s/__OUTPUT_IS_TAR__//g" \$tmp_self_out
+		mksquashfs \$out \$tmp_squashfs_out -noappend
+		cat \$tmp_squashfs_out >> \$tmp_self_out
+		rm \$tmp_squashfs_out
+	else
+		tar -cf - -C \$out . >> \$tmp_self_out # Create the tarball
+	fi
 	chmod +x \$tmp_self_out
 	mv -f \$tmp_self_out \$selfpath
 fi
 
-cd /
-rm -rf \$out/
+# cd /
+# rm -rf \$out/
 
-cd \$user_cwd
+# cd \$user_cwd
 
 exit 0
-__PAYLOAD_BELOW__\n"
+__PAYLOAD_BELOW__
 EOF
 
 echo "Packaging final script..."

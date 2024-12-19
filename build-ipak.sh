@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 LATEST_IPACK_VERSION="v0.6.0" # That has distro releases
 
