@@ -1,7 +1,5 @@
 #!/bin/bash
 
-LATEST_IPACK_VERSION="v0.6.0" # That has distro releases
-
 POSITIONAL_ARGS=()
 
 build_file=""
@@ -107,7 +105,7 @@ while IFS='' read -r line; do
 
 	if [ "$created_output_file" == "false" ]; then
 		# Fetch distro $distro and output to $output_file
-		wget "https://github.com/FigSystems/IcePak/releases/download/$LATEST_IPACK_VERSION/$distro.ipak" -O $output_file
+		wget "https://github.com/FigSystems/IcePak/releases/latest/download/$distro.ipak" -O $output_file
 		chmod +x $output_file
 		if [ $? -ne 0 ]; then
 			echo "Failed to fetch distro $distro"
