@@ -45,6 +45,7 @@ cat <<EOF > "$tmp"
 # IPak<->IPak<->IPak<->IPak
 
 # identifier string is above.
+set -e
 
 cmd="/AppRun"
 POSITIONAL_ARGS=()
@@ -142,8 +143,9 @@ function cleanup() {
 	cd /
 	if [ ! -f "\$out/.mutable" ]; then
 		# (overlayfs)
-		umount \$out || true # If this fails it just means the archive isn't mounted
-		# No worries.
+		if mountpoint -q -- "\$out"; then
+			fusermount -u \$out || fusermount -uz \$out
+		fi
 
 		# (tmpfs)
 		if [ -n "\$overlayfs_read_write_tmp" ]; then
@@ -157,7 +159,7 @@ function cleanup() {
 
 		# (squashfs)
 		if [ -n "\$sqsh_mnt_tmp" ]; then
-			umount \$sqsh_mnt_tmp || true
+			fusermount -u "\$sqsh_mnt_tmp" || fusermount -uz "\$sqsh_mnt_tmp"
 			rm -Rf "\$sqsh_mnt_tmp"
 		fi
 	fi
