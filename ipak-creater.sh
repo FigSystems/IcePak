@@ -41,7 +41,7 @@ echo "Compresssing payload..."
 $(tar -cvf $payload -C $payload_in . || exit 1)
 
 cat <<EOF > "$tmp"
-#!/bin/bash -x
+#!/bin/bash
 # IPak<->IPak<->IPak<->IPak
 
 # identifier string is above.
@@ -115,7 +115,7 @@ else
 	squashfuse \$0 \$sqsh_mnt_tmp -o offset=\$((PAYLOAD_BYTE))
 	# Bwrap needs an overlayfs to function correctly.
 	# unionfs \${overlayfs_read_write_tmp}=RW:\${sqsh_mnt_tmp}=RO \$out
-	overlayfs-fuse -o lowerdir=\${sqsh_mnt_tmp},upperdir=\${overlayfs_read_write_tmp},workdir=\${fuse_workdir} \$out
+	fuse-overlayfs -o lowerdir=\${sqsh_mnt_tmp},upperdir=\${overlayfs_read_write_tmp},workdir=\${fuse_workdir} \$out
 fi
 
 # Resolve any relative paths here before they get destroyed!!!!
