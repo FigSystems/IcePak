@@ -64,12 +64,12 @@ set -e
 cmd="/AppRun"
 POSITIONAL_ARGS=()
 ALL_ARGS=()
+extract_icon=""
 cmd="/AppRun"
 bind_temp="true"
 share_fonts="true"
 build_mode="false"
 output_is_tar="__OUTPUT_IS_TAR__"
-ipak_dir="__IPAK_DIR__"
 
 while [[ \$# -gt 0 ]]; do
   case \$1 in
@@ -95,11 +95,6 @@ while [[ \$# -gt 0 ]]; do
 		;;
 	--ipak-build-mode)
 		build_mode="true"
-		shift
-		;;
-	--ipak-extract)
-		extract="\$2"
-		shift
 		shift
 		;;
     -*|--*)
@@ -132,17 +127,24 @@ else
 	squashfuse \$0 \$out -o offset=\$((PAYLOAD_BYTE))
 fi
 
-if [ -z "\$extract" ]; then
-	cp -f "\$out" "\$extract"
-	cp \$0 "\$extract/run.sh"
-	sed -i -e "s/__IPAK_DIR__//g" \$extract/run.sh
-	cleanup
-	exit 0
-fi
-
 # Resolve any relative paths here before they get destroyed!!!!
 selfpath=\$(realpath \$0)
 
+
+# function use_host_tmp() {
+# 	if [ \${bind_temp} == "true" ]; then
+# 		return --bind /tmp /tmp
+# 	fi
+# 	return --tmpfs /tmp
+# }
+
+# function use_host_fonts() {
+# 	if [ \${share_fonts} == "true" ]; then
+# 		return "--ro-bind-try /usr/share/fontconfig /usr/share/fontconfig \
+# 				--ro-bind-try /usr/share/fonts /usr/share/fonts"
+# 	fi
+# 	return
+# }
 
 function cleanup() {
 	echo "Cleaning up..."
