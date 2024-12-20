@@ -36,9 +36,23 @@ payload_in=$1
 script=$2
 tmp=__extract__$RANDOM
 payload="__payload__$RANDOM.tar"
+additions_tmp=$(mktemp -d)
 
 echo "Compresssing payload..."
 $(tar -cvf $payload -C $payload_in . || exit 1)
+
+
+
+# Additions
+mkdir -p $additions_tmp/rootfs/usr/bin
+echo "Downloading bwrap..."
+wget -O $additions_tmp/rootfs/usr/bin/bwrap https://github.com/ruanformigoni/bubblewrap-musl-static/releases/latest/download/bwrap-x86_64
+chmod +x $additions_tmp/rootfs/usr/bin/bwrap
+
+echo "Adding payload additions..."
+tar -uvf $payload -C $additions_tmp . || exit 1
+
+
 
 cat <<EOF > "$tmp"
 #!/bin/bash
@@ -110,13 +124,7 @@ PAYLOAD_BYTE=\$(head -n \$((PAYLOAD_LINE - 1)) \$0 | wc -c)
 if [ -n "\$output_is_tar" ]; then
 	tail -n+\$PAYLOAD_LINE \$0 | tar -x -C \$out
 else
-	sqsh_mnt_tmp=\$(mktemp -d)
-	overlayfs_read_write_tmp=\$(mktemp -d)
-	fuse_workdir=\$(mktemp -d)
-	squashfuse \$0 \$sqsh_mnt_tmp -o offset=\$((PAYLOAD_BYTE))
-	# Bwrap needs an overlayfs to function correctly.
-	# unionfs \${overlayfs_read_write_tmp}=RW:\${sqsh_mnt_tmp}=RO \$out
-	fuse-overlayfs -o lowerdir=\${sqsh_mnt_tmp},upperdir=\${overlayfs_read_write_tmp},workdir=\${fuse_workdir} \$out
+	squashfuse \$0 \$out -o offset=\$((PAYLOAD_BYTE))
 fi
 
 # Resolve any relative paths here before they get destroyed!!!!
@@ -145,22 +153,6 @@ function cleanup() {
 		# (overlayfs)
 		if mountpoint -q -- "\$out"; then
 			fusermount -u \$out || fusermount -uz \$out
-		fi
-
-		# (tmpfs)
-		if [ -n "\$overlayfs_read_write_tmp" ]; then
-			rm -Rf "\$overlayfs_read_write_tmp"
-		fi
-
-		# (tmpfs)
-		if [ -n "\$fuse_workdir" ]; then
-			rm -Rf "\$fuse_workdir"
-		fi
-
-		# (squashfs)
-		if [ -n "\$sqsh_mnt_tmp" ]; then
-			fusermount -u "\$sqsh_mnt_tmp" || fusermount -uz "\$sqsh_mnt_tmp"
-			rm -Rf "\$sqsh_mnt_tmp"
 		fi
 	fi
 	rm -rf "\$out"
@@ -204,7 +196,8 @@ cd \$out
 if [ "\$1" != "commit" ]; then
 if [ "\$build_mode" == "false" ]; then
 # Inspired by pelf :D
-bwrap --bind \$out/rootfs / \
+\$out/rootfs/usr/bin/bwrap --overlay-src \$out/rootfs \
+ --tmp-overlay / \
  --uid \$(id -u) \
  --gid \$(id -g) \
  --bind /tmp /tmp \
@@ -253,7 +246,7 @@ bwrap --bind \$out/rootfs / \
 
 else
 # Build mode
-bwrap --bind \$out/rootfs / \
+\$out/rootfs/usr/bin/bwrap --bind \$out/rootfs / \
  --proc /proc \
  --dev-bind /dev /dev \
  --ro-bind-try /home /home \
