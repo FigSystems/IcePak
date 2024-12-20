@@ -196,7 +196,8 @@ cd \$out
 if [ "\$1" != "commit" ]; then
 if [ "\$build_mode" == "false" ]; then
 # Inspired by pelf :D
-\$out/rootfs/usr/bin/bwrap --overlay-src \$out/rootfs \
+\$out/rootfs/usr/bin/bwrap --new-session \
+ --overlay-src \$out/rootfs \
  --tmp-overlay / \
  --uid \$(id -u) \
  --gid \$(id -g) \
@@ -246,7 +247,8 @@ if [ "\$build_mode" == "false" ]; then
 
 else
 # Build mode
-\$out/rootfs/usr/bin/bwrap --bind \$out/rootfs / \
+\$out/rootfs/usr/bin/bwrap --new-session \
+ --bind \$out/rootfs / \
  --proc /proc \
  --dev-bind /dev /dev \
  --ro-bind-try /home /home \
