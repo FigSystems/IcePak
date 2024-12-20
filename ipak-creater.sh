@@ -199,8 +199,6 @@ if [ "\$build_mode" == "false" ]; then
 \$out/rootfs/usr/bin/bwrap --new-session \
  --overlay-src \$out/rootfs \
  --tmp-overlay / \
- --uid \$(id -u) \
- --gid \$(id -g) \
  --bind /tmp /tmp \
  --proc /proc \
  --dev-bind /dev /dev \
@@ -275,7 +273,7 @@ if [ -f "\$out/.mutable" ] || [ "\$1" == "commit" ]; then
 	if [ "\$1" == "commit" ]; then
 		tmp_squashfs_out=\$(mktemp)
 		sed -i -e "s/__OUTPUT_IS_TAR__//g" \$tmp_self_out
-		mksquashfs \$out \$tmp_squashfs_out -noappend
+		mksquashfs \$out \$tmp_squashfs_out -noappend -no-compression
 		cat \$tmp_squashfs_out >> \$tmp_self_out
 		rm \$tmp_squashfs_out
 	else
