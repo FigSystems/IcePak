@@ -90,7 +90,6 @@ mkdir -p "$out/rootfs/$HOME"
 
 ####################################
 
-if [ "$1" != "commit" ]; then
 if [ "$build_mode" == "false" ]; then
 # Inspired by pelf :D
 # $out/rootfs/usr/bin/
@@ -168,5 +167,4 @@ bwrap --new-session \
  --unshare-all \
  --share-net \
  /bin/sh -c "$cmd"
-fi
 fi
