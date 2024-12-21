@@ -14,7 +14,7 @@ extract_icon=""
 cmd="/AppRun"
 build_mode="false"
 
-out="$(dirname $0)"
+out="$(dirname "$0")"
 echo "out: $out"
 
 while [[ $# -gt 0 ]]; do
@@ -94,15 +94,15 @@ if [ "$build_mode" == "false" ]; then
 # Inspired by pelf :D
 # $out/rootfs/usr/bin/
 bwrap --new-session \
- --bind $out/rootfs / \
+ --bind "$out/rootfs" / \
  --bind /tmp /tmp \
  --proc /proc \
  --dev-bind /dev /dev \
  --bind /run /run \
  --bind-try /media /media \
  --bind-try /mnt /mnt \
- --bind-try $out/rootfs/$HOME $HOME \
- --bind-try /$HOME/Downloads $HOME/Downloads \
+ --bind-try "$out/rootfs/$HOME" "$HOME" \
+ --bind-try $HOME/Downloads $HOME/Downloads \
  --bind-try $HOME/Desktop $HOME/Desktop \
  --bind-try $HOME/Documents $HOME/Documents \
  --bind-try $HOME/Pictures $HOME/Pictures \
@@ -150,7 +150,7 @@ else
 # Build mode
 # $out/rootfs/usr/bin/
 bwrap --new-session \
- --bind $out/rootfs / \
+ --bind "$out/rootfs" / \
  --proc /proc \
  --dev-bind /dev /dev \
  --ro-bind-try /home /home \

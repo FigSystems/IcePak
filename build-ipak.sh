@@ -61,6 +61,7 @@ fi
 output_path=""
 distro=""
 created_output_dir="false"
+name="AppRun"
 alt_args=()
 
 while IFS='' read -r line; do
@@ -82,6 +83,8 @@ while IFS='' read -r line; do
 		if [ -n "$distro_file" ]; then
 			if [ -f "$distro_file" ]; then
 				echo "Distro file: $distro_file"
+				rm -rf "$output_path"
+				mkdir -p "$output_path"
 				tar -xzf "$distro_file" -C "$output_path"
 				created_output_dir="true"
 			else
@@ -104,6 +107,12 @@ while IFS='' read -r line; do
 		continue
 	fi
 
+	if [ "${line:0:6}" == "Name: " ]; then
+		name="${line:6}"
+		echo "Name: $name"
+		continue
+	fi
+
 	if [ -z "$output_path" ] || [ -z "$distro" ]; then
 		echo "You must specify an output file and distro before other commands!"
 		exit 1
@@ -113,6 +122,8 @@ while IFS='' read -r line; do
 		# Fetch distro $distro and output to $output_path
 		tmp_output=$(mktemp)
 		wget "https://github.com/FigSystems/IcePak/releases/latest/download/$distro.tgz" -O $tmp_output
+		rm -rf $output_path
+		mkdir -p $output_path
 		tar -xzf $tmp_output -C $output_path
 
 		if [ $? -ne 0 ]; then
@@ -123,7 +134,7 @@ while IFS='' read -r line; do
 		created_output_dir="true"
 	fi
 
-	${output_path}/run.sh --ipak-build-mode "${alt_args[@]}" $line
+	${output_path}/.run.sh --ipak-build-mode "${alt_args[@]}" $line
 	if [ $? -ne 0 ]; then
 		exit 1
 	fi
@@ -131,3 +142,5 @@ while IFS='' read -r line; do
 	# "$output_path" "$line"
 
 done < "$build_file"
+
+ln -sfT "$output_path/.run.sh" "$output_path/$name"

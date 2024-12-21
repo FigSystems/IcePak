@@ -1,8 +1,7 @@
 < alpine
 > Out/gedit.ipak
+Name: Gedit (Text editor)
 
 shell apk update
 shell apk add --no-cache gedit adwaita-icon-theme
-set-entrypoint /usr/bin/gedit
-
-commit
+set-entrypoint gedit
