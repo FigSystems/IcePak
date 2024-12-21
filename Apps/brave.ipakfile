@@ -8,4 +8,3 @@ shell echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg
 shell fakeroot apt update
 shell fakeroot apt install -y brave-browser
 set-entrypoint /bin/brave-browser
-commit

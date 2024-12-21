@@ -10,5 +10,3 @@ shell fakeroot apt-get -y update
 shell fakeroot apt-get install -y code # or code-insiders
 
 set-entrypoint code --wait
-
-commit
