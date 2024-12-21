@@ -1,7 +1,5 @@
 < debian
 > Out/brave.ipak
-& --ipak-no-bind-tmp
-& --ipak-no-share-fonts
 
 shell fakeroot apt-get install -y curl
 shell curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
