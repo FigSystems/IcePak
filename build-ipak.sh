@@ -58,9 +58,9 @@ if ! file_ends_with_newline "$build_file"; then
 	fi
 fi
 
-output_file=""
+output_path=""
 distro=""
-created_output_file="false"
+created_output_dir="false"
 alt_args=()
 
 while IFS='' read -r line; do
@@ -73,14 +73,20 @@ while IFS='' read -r line; do
 	fi
 
 	if [ "${line:0:2}" == "> " ]; then
-		output_file="${line:2}"
-		output_file="$(realpath $output_file)"
-		echo "Output file: $output_file"
+		output_path="${line:2}"
+		output_path="$(realpath $output_path)"
+		mkdir -p "$output_path"
+		echo "Output file: $output_path"
+
+
 		if [ -n "$distro_file" ]; then
 			if [ -f "$distro_file" ]; then
 				echo "Distro file: $distro_file"
-				cp -f "$distro_file" "$output_file"
-				created_output_file="true"
+				tar -xzf "$distro_file" -C "$output_path"
+				created_output_dir="true"
+			else
+				echo "Distro file not found: $distro_file"
+				exit 1
 			fi
 		fi
 		continue
@@ -98,28 +104,30 @@ while IFS='' read -r line; do
 		continue
 	fi
 
-	if [ -z "$output_file" ] || [ -z "$distro" ]; then
+	if [ -z "$output_path" ] || [ -z "$distro" ]; then
 		echo "You must specify an output file and distro before other commands!"
 		exit 1
 	fi
 
-	if [ "$created_output_file" == "false" ]; then
-		# Fetch distro $distro and output to $output_file
-		wget "https://github.com/FigSystems/IcePak/releases/latest/download/$distro.ipak" -O $output_file
-		chmod +x $output_file
+	if [ "$created_output_dir" == "false" ]; then
+		# Fetch distro $distro and output to $output_path
+		tmp_output=$(mktemp)
+		wget "https://github.com/FigSystems/IcePak/releases/latest/download/$distro.tgz" -O $tmp_output
+		tar -xzf $tmp_output -C $output_path
+
 		if [ $? -ne 0 ]; then
 			echo "Failed to fetch distro $distro"
 			echo "This could be because the distro doesn't exist or you don't have internet access."
 			exit 243
 		fi
-		created_output_file="true"
+		created_output_dir="true"
 	fi
 
-	${output_file} --ipak-build-mode "${alt_args[@]}" $line
+	${output_path}/run.sh --ipak-build-mode "${alt_args[@]}" $line
 	if [ $? -ne 0 ]; then
 		exit 1
 	fi
 
-	# "$output_file" "$line"
+	# "$output_path" "$line"
 
 done < "$build_file"

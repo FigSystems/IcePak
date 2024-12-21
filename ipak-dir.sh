@@ -149,7 +149,8 @@ bwrap --new-session \
 
 else
 # Build mode
-$out/rootfs/usr/bin/bwrap --new-session \
+# $out/rootfs/usr/bin/
+bwrap --new-session \
  --bind $out/rootfs / \
  --proc /proc \
  --dev-bind /dev /dev \

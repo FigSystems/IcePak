@@ -19,17 +19,17 @@ build/alpine-rootfs.tar.gz:
 	rm -rf $${out}; \
 	mv $${out}.tar ./build/alpine-rootfs.tar.gz
 
-build/debian.ipak: build/debian-rootfs.tar.gz
-	out=$$(mktemp -d); \
-	tar -xzf ./build/debian-rootfs.tar.gz -C $${out}; \
-	ipak-creater $${out} ./build/debian.ipak; \
-	rm -rf $${out};
+# build/debian.ipak: build/debian-rootfs.tar.gz
+# 	out=$$(mktemp -d); \
+# 	tar -xzf ./build/debian-rootfs.tar.gz -C $${out}; \
+# 	ipak-creater $${out} ./build/debian.ipak; \
+# 	rm -rf $${out};
 
-build/alpine.ipak: build/alpine-rootfs.tar.gz
-	out=$$(mktemp -d); \
-	tar -xzf ./build/alpine-rootfs.tar.gz -C $${out}; \
-	ipak-creater $${out} ./build/alpine.ipak; \
-	rm -rf $${out};
+# build/alpine.ipak: build/alpine-rootfs.tar.gz
+# 	out=$$(mktemp -d); \
+# 	tar -xzf ./build/alpine-rootfs.tar.gz -C $${out}; \
+# 	ipak-creater $${out} ./build/alpine.ipak; \
+# 	rm -rf $${out};
 
 debian-ipakdir: build/debian-rootfs.tar.gz
 	rm -rf build/debian.ipakdir; \
@@ -45,6 +45,12 @@ alpine-ipakdir: build/alpine-rootfs.tar.gz
 	cp ./ipak-dir.sh build/alpine.ipakdir/run.sh; \
 	chmod +x build/alpine.ipakdir/run.sh;
 
+alpine-ipakdir-tgz: alpine-ipakdir
+	tar -czf build/alpine.ipakdir.tgz -C build/alpine.ipakdir .
+
+debian-ipakdir-tgz: debian-ipakdir
+	tar -czf build/debian.ipakdir.tgz -C build/debian.ipakdir .
+
 
 debian-base: build/debian-rootfs.tar.gz
 
@@ -54,10 +60,7 @@ debian-ipak: build/debian.ipak
 
 alpine-ipak: build/alpine.ipak
 
-dists:  debian-ipak alpine-ipak
-
-self: alpine-ipak
-	build-ipak --file make-build-ipak.ipakfile
+dists:  alpine-ipakdir-tgz debian-ipakdir-tgz
 
 
 install: ipak-creater.sh build-ipak.sh
