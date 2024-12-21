@@ -34,10 +34,12 @@ alpine-ipakdir: build/alpine-rootfs.tar.gz
 	chmod +x build/alpine.ipakdir/run.sh;
 
 alpine-ipakdir-tgz: alpine-ipakdir
-	tar -czf build/alpine.ipakdir.tgz -C build/alpine.ipakdir .
+	tar -czf build/alpine.tgz -C build/alpine.ipakdir .
+	rm -rf build/alpine.ipakdir
 
 debian-ipakdir-tgz: debian-ipakdir
-	tar -czf build/debian.ipakdir.tgz -C build/debian.ipakdir .
+	tar -czf build/debian.tgz -C build/debian.ipakdir .
+	rm -rf build/debian.ipakdir
 
 
 debian-base: build/debian-rootfs.tar.gz
