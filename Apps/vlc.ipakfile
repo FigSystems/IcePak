@@ -1,0 +1,8 @@
+< alpine
+> Out/vlc.ipak
+Name: VLC
+
+shell apk update
+shell apk add --no-cache fakeroot
+shell fakeroot apk add --no-cache vlc vlc-qt adwaita-icon-theme
+set-entrypoint qvlc
