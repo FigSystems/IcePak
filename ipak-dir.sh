@@ -14,7 +14,8 @@ extract_icon=""
 cmd="/AppRun"
 build_mode="false"
 
-out="$(dirname "$0")"
+self="$(readlink -f "$0")"
+out="$(dirname "$self")"
 echo "out: $out"
 
 while [[ $# -gt 0 ]]; do
