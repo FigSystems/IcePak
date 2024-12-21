@@ -14,7 +14,7 @@ extract_icon=""
 cmd="/AppRun"
 build_mode="false"
 
-out="$(dirpath $0)"
+out="$(dirname $0)"
 echo "out: $out"
 
 while [[ $# -gt 0 ]]; do
@@ -86,14 +86,13 @@ fi
 
 echo "Running command: $cmd"
 echo "Changing directory to: $bwrap_chdir"
-
-cd $out
 ####################################
 
 if [ "$1" != "commit" ]; then
 if [ "$build_mode" == "false" ]; then
 # Inspired by pelf :D
-$out/rootfs/usr/bin/bwrap --new-session \
+# $out/rootfs/usr/bin/
+bwrap --new-session \
  --bind $out/rootfs / \
  --bind /tmp /tmp \
  --proc /proc \
