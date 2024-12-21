@@ -86,6 +86,8 @@ fi
 
 echo "Running command: $cmd"
 echo "Changing directory to: $bwrap_chdir"
+mkdir -p "$out/rootfs/$HOME"
+
 ####################################
 
 if [ "$1" != "commit" ]; then
@@ -100,7 +102,7 @@ bwrap --new-session \
  --bind /run /run \
  --bind-try /media /media \
  --bind-try /mnt /mnt \
- --bind-try $HOME $HOME \
+ --bind-try $out/rootfs/$HOME $HOME \
  --bind-try /$HOME/Downloads $HOME/Downloads \
  --bind-try $HOME/Desktop $HOME/Desktop \
  --bind-try $HOME/Documents $HOME/Documents \

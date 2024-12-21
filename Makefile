@@ -32,12 +32,14 @@ build/alpine.ipak: build/alpine-rootfs.tar.gz
 	rm -rf $${out};
 
 debian-ipakdir: build/debian-rootfs.tar.gz
+	rm -rf build/debian.ipakdir; \
 	mkdir -p build/debian.ipakdir; \
 	tar -xzf ./build/debian-rootfs.tar.gz -C build/debian.ipakdir; \
 	cp ./ipak-dir.sh build/debian.ipakdir/run.sh; \
 	chmod +x build/debian.ipakdir/run.sh;
 
 alpine-ipakdir: build/alpine-rootfs.tar.gz
+	rm -rf build/alpine.ipakdir; \
 	mkdir -p build/alpine.ipakdir; \
 	tar -xzf ./build/alpine-rootfs.tar.gz -C build/alpine.ipakdir; \
 	cp ./ipak-dir.sh build/alpine.ipakdir/run.sh; \
