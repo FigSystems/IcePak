@@ -31,6 +31,19 @@ build/alpine.ipak: build/alpine-rootfs.tar.gz
 	ipak-creater $${out} ./build/alpine.ipak; \
 	rm -rf $${out};
 
+debian-ipakdir: build/debian-rootfs.tar.gz
+	mkdir -p debian.ipakdir; \
+	tar -xzf ./build/debian-rootfs.tar.gz -C debian.ipakdir; \
+	cp ./ipak-dir.sh debian.ipakdir/run.sh; \
+	chmod +x debian.ipakdir/run.sh;
+
+alpine-ipakdir: build/alpine-rootfs.tar.gz
+	mkdir -p alpine.ipakdir; \
+	tar -xzf ./build/alpine-rootfs.tar.gz -C alpine.ipakdir; \
+	cp ./ipak-dir.sh alpine.ipakdir/run.sh; \
+	chmod +x alpine.ipakdir/run.sh;
+
+
 debian-base: build/debian-rootfs.tar.gz
 
 alpine-base: build/alpine-rootfs.tar.gz
