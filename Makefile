@@ -19,18 +19,6 @@ build/alpine-rootfs.tar.gz:
 	rm -rf $${out}; \
 	mv $${out}.tar ./build/alpine-rootfs.tar.gz
 
-# build/debian.ipak: build/debian-rootfs.tar.gz
-# 	out=$$(mktemp -d); \
-# 	tar -xzf ./build/debian-rootfs.tar.gz -C $${out}; \
-# 	ipak-creater $${out} ./build/debian.ipak; \
-# 	rm -rf $${out};
-
-# build/alpine.ipak: build/alpine-rootfs.tar.gz
-# 	out=$$(mktemp -d); \
-# 	tar -xzf ./build/alpine-rootfs.tar.gz -C $${out}; \
-# 	ipak-creater $${out} ./build/alpine.ipak; \
-# 	rm -rf $${out};
-
 debian-ipakdir: build/debian-rootfs.tar.gz
 	rm -rf build/debian.ipakdir; \
 	mkdir -p build/debian.ipakdir; \
