@@ -1,6 +1,6 @@
 < alpine
 > Out/gedit.ipak
-Name: Gedit (Text editor)
+Name: Gedit
 
 shell apk update
 shell apk add --no-cache gedit adwaita-icon-theme

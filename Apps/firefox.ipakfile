@@ -1,8 +1,9 @@
 < alpine
 > Out/firefox.ipak
+Name: Mozilla Firefox
 
 shell apk update
-shell apk add firefox
+shell apk add firefox adwaita-icon-theme
 set-entrypoint /usr/bin/firefox
 
 commit

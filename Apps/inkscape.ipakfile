@@ -1,5 +1,6 @@
 < alpine
 > Out/inkscape.ipak
+Name: Inkscape
 
 shell apk update
 shell apk add --no-cache inkscape adwaita-icon-theme

@@ -1,5 +1,6 @@
 < debian
 > Out/vscode.ipak
+Name: Visual Studio Code
 
 shell fakeroot apt install -y gpg curl
 shell fakeroot curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /microsoft.gpg
