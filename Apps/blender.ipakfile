@@ -1,7 +1,7 @@
-< alpine
+< debian
 > Out/blender.ipak
 Name: Blender
 
-shell apk update
-shell apk add --no-cache blender adwaita-icon-theme wayland-dev mesa-gl libdecor-dev mesa-egl mesa-utils
+shell fakeroot apt -y update
+shell fakeroot apt -y install blender adwaita-icon-theme
 set-entrypoint blender
