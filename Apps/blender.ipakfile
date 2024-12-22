@@ -3,5 +3,5 @@
 Name: Blender
 
 shell apk update
-shell apk add --no-cache blender adwaita-icon-theme wayland-dev mesa-gl libdecor-dev mesa-egl
+shell apk add --no-cache blender adwaita-icon-theme wayland-dev mesa-gl libdecor-dev mesa-egl mesa-utils
 set-entrypoint blender
