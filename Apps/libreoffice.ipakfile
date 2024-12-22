@@ -3,5 +3,5 @@
 Name: LibreOffice
 
 shell apk update
-shell apk add --no-cache bash libreoffice util-linux font-droid-nonlatin font-droid ttf-dejavu ttf-freefont ttf-liberation
+shell apk add --no-cache bash libreoffice util-linux
 set-entrypoint /usr/bin/libreoffice
