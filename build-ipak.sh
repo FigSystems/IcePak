@@ -107,6 +107,12 @@ while IFS='' read -r line; do
 		continue
 	fi
 
+	if [ "${line:0:2}" == "$ " ]; then
+		cmd="${line:2}"
+		${cmd}
+		continue
+	fi
+
 	if [ "${line:0:6}" == "Name: " ]; then
 		name="${line:6}"
 		echo "Name: $name"

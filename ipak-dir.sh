@@ -146,7 +146,7 @@ bwrap --new-session \
  --ro-bind-try /usr/share/fonts /usr/share/fonts \
  --ro-bind-try /usr/share/themes /usr/share/themes \
  --ro-bind-try /lib/firmware /lib/firmware \
- $(if [-n "$XDG_RUNTIME_DIR"]; then echo "--bind $XDG_RUNTIME_DIR $XDG_RUNTIME_DIR"; fi) \
+ $(if [ -n "$XDG_RUNTIME_DIR" ]; then echo "--bind $XDG_RUNTIME_DIR $XDG_RUNTIME_DIR"; fi) \
  --setenv XDG_RUNTIME_DIR "$XDG_RUNTIME_DIR" \
  --setenv HOME "$HOME" \
  --setenv XDG_CACHE_HOME "$XDG_CACHE_HOME" \
