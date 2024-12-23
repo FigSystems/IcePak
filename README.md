@@ -15,10 +15,10 @@ directory
 ├── rootfs
 │   └── AppRun
 ├── icon
-├── icon
 └── app.desktop
 ```
 
 Pretty basic. `AppRun` is the file that will be executed when the bundle is run. It can be any file that can be  `./`ed (e.g. shell script with a shebang, binary executable, symlink, etc.). `icon` is the icon for the bundle which can be a(n) `svg`, `png`, or `jpg` file. Do not include the file extension in the name however. The name must be exactly `icon` or it won't get recognized. `app.desktop` is a regular desktop file, although the `Exec` field does not need to be filled out. For now `Name` is the only mandatory field. Just like with `icon` the filename is important for it to get recognized.
 
-Their is also a `dist-to-ipak.sh` script which creates the ipak for a distribution
+Most of the time, you will never need to manually create an IPak. The build-ipak script will
+fetch distribution IPaks which can then be modified by adding packages, files, etc.
