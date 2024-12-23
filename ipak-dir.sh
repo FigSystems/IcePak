@@ -111,6 +111,12 @@ bwrap --new-session \
  --bind-try $HOME/Videos $HOME/Videos \
  --bind-try $HOME/Templates $HOME/Templates \
  --bind-try $HOME/Public $HOME/Public \
+ --ro-bind-try "$HOME/.config/gtk-3.0/" "$HOME/.config/gtk-3.0/" \
+ --ro-bind-try "$HOME/.config/gtk-4.0/" "$HOME/.config/gtk-4.0/" \
+ --ro-bind-try "$HOME/.config/gtk-2.0/" "$HOME/.config/gtk-2.0/" \
+ --ro-bind-try "$HOME/.config/gtkrc" "$HOME/.config/gtkrc" \
+ --ro-bind-try "$HOME/.config/gtkrc-2.0" "$HOME/.config/gtkrc-2.0" \
+ --ro-bind-try "$HOME/.config/dconf" "$HOME/.config/dconf" \
  --bind-try /sys /sys \
  --ro-bind-try /etc/resolv.conf /etc/resolv.conf \
  --ro-bind-try /etc/hosts /etc/hosts \
