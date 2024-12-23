@@ -3,5 +3,5 @@
 Name: Gedit
 
 shell apk update
-shell apk add --no-cache gedit adwaita-icon-theme
+shell apk add --no-cache gedit
 set-entrypoint gedit
