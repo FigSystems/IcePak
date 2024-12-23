@@ -85,6 +85,23 @@ if [ "${bwrap_chdir:0:5}" != "/home" ] && [ "${bwrap_chdir:0:6}" != "/Users" ]; 
 	bwrap_chdir="/"
 fi
 
+overlay_args=("/usr/share" "$HOME/.local/share" "$HOME/.config" \
+"/usr/share/fonts" "/usr/share/icons" "/usr/share/pixmaps" \
+"/usr/share/mime" "/usr/share/mime/packages" \
+"$HOME/.icons" "$HOME/.themes" "$HOME/.fonts")
+overlay_works=()
+
+function gen_overlay_args() {
+	for i in "${overlay_args[@]}"; do
+		if [ -d "$i" ]; then
+			overlay_work=$(mktemp -d -p "/var/tmp/")
+			overlay_works+=("$overlay_work")
+			mkdir -p "$out/rootfs/$i"
+			echo -n "--overlay-src $i --overlay $out/rootfs/$i $overlay_work $i "
+		fi
+	done
+}
+
 echo "Running command: $cmd"
 echo "Changing directory to: $bwrap_chdir"
 mkdir -p "$out/rootfs/$HOME"
@@ -116,8 +133,7 @@ bwrap --new-session \
  --bind-try $HOME/Videos $HOME/Videos \
  --bind-try $HOME/Templates $HOME/Templates \
  --bind-try $HOME/Public $HOME/Public \
- --overlay-src "/usr/share" \
- --overlay "$out/rootfs/usr/share" "$share_work" "/usr/share" \
+ $(gen_overlay_args) \
  --bind-try "$out/rootfs/usr/share/applications" "/usr/share/applications" \
  --bind-try /sys /sys \
  --ro-bind-try /etc/resolv.conf /etc/resolv.conf \
@@ -154,6 +170,10 @@ bwrap --new-session \
  --share-net \
  --chdir $bwrap_chdir \
  /bin/sh -c "$cmd"
+
+for i in "${overlay_works[@]}"; do
+	rm -rf "$i"
+done
 
 else
 # Build mode
