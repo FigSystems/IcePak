@@ -4,5 +4,4 @@ Name: Thunar
 
 shell apk update
 shell apk add --no-cache thunar
-shell apk add --no-cache yaru-icon-theme yaru-theme hicolor-icon-theme --repository=http://dl-cdn.alpinelinux.org/alpine/edge/testing/
 set-entrypoint thunar

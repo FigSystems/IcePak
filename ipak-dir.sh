@@ -88,98 +88,48 @@ fi
 echo "Running command: $cmd"
 echo "Changing directory to: $bwrap_chdir"
 mkdir -p "$out/rootfs/$HOME"
+mkdir -p "$out/rootfs/$HOME/.config"
+
+share_work=$(mktemp -d -p "/var/tmp/")
+config_work=$(mktemp -d -p "/var/tmp/")
+
 
 ####################################
 
 if [ "$build_mode" == "false" ]; then
 # Inspired by pelf :D
 # $out/rootfs/usr/bin/
-# bwrap --new-session \
-#  --bind "$out/rootfs" / \
-#  --bind /tmp /tmp \
-#  --proc /proc \
-#  --dev-bind /dev /dev \
-#  --bind /run /run \
-#  --bind-try /media /media \
-#  --bind-try /mnt /mnt \
-#  --bind-try "$out/rootfs/$HOME" "$HOME" \
-#  --bind-try $HOME/Downloads $HOME/Downloads \
-#  --bind-try $HOME/Desktop $HOME/Desktop \
-#  --bind-try $HOME/Documents $HOME/Documents \
-#  --bind-try $HOME/Pictures $HOME/Pictures \
-#  --bind-try $HOME/Music $HOME/Music \
-#  --bind-try $HOME/Videos $HOME/Videos \
-#  --bind-try $HOME/Templates $HOME/Templates \
-#  --bind-try $HOME/Public $HOME/Public \
-#  --ro-bind-try "$HOME/.config/gtk-3.0/" "$HOME/.config/gtk-3.0/" \
-#  --ro-bind-try "$HOME/.config/gtk-4.0/" "$HOME/.config/gtk-4.0/" \
-#  --ro-bind-try "$HOME/.config/gtk-2.0/" "$HOME/.config/gtk-2.0/" \
-#  --ro-bind-try "$HOME/.config/gtkrc" "$HOME/.config/gtkrc" \
-#  --ro-bind-try "$HOME/.config/gtkrc-2.0" "$HOME/.config/gtkrc-2.0" \
-#  --ro-bind-try "$HOME/.config/dconf" "$HOME/.config/dconf" \
-#  --bind-try /sys /sys \
-#  --ro-bind-try /etc/resolv.conf /etc/resolv.conf \
-#  --ro-bind-try /etc/hosts /etc/hosts \
-#  --ro-bind-try /etc/nsswitch.conf /etc/nsswitch.conf \
-#  --ro-bind-try /etc/machine-id /etc/machine-id \
-#  --ro-bind-try /etc/asound.conf /etc/asound.conf \
-#  --ro-bind-try /etc/hostname /etc/hostname \
-#  --ro-bind-try /usr/share/fontconfig /usr/share/fontconfig \
-#  --ro-bind-try /usr/share/fonts /usr/share/fonts \
-#  --ro-bind-try /usr/share/themes /usr/share/themes \
-#  --ro-bind-try /lib/firmware /lib/firmware \
-#  --setenv XDG_RUNTIME_DIR "$XDG_RUNTIME_DIR" \
-#  --setenv HOME "$HOME" \
-#  --setenv XDG_CACHE_HOME "$XDG_CACHE_HOME" \
-#  --setenv XDG_CONFIG_HOME "$XDG_CONFIG_HOME" \
-#  --setenv XDG_DATA_HOME "$XDG_DATA_HOME" \
-#  --setenv XDG_BIN_HOME "$XDG_BIN_HOME" \
-#  --setenv XDG_MUSIC_DIR "$XDG_MUSIC_DIR" \
-#  --setenv XDG_PICTURES_DIR "$XDG_PICTURES_DIR" \
-#  --setenv XDG_VIDEOS_DIR "$XDG_VIDEOS_DIR" \
-#  --setenv XDG_DESKTOP_DIR "$XDG_DESKTOP_DIR" \
-#  --setenv XDG_DOCUMENTS_DIR "$XDG_DOCUMENTS_DIR" \
-#  --setenv XDG_DOWNLOAD_DIR "$XDG_DOWNLOAD_DIR" \
-#  --setenv XDG_TEMPLATES_DIR "$XDG_TEMPLATES_DIR" \
-#  --setenv XDG_PUBLICSHARE_DIR "$XDG_PUBLICSHARE_DIR" \
-#  --setenv XDG_DATA_DIRS "$XDG_DATA_DIRS" \
-#  --setenv PATH "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/local/games:$HOME/.local/bin" \
-#  --setenv TERM "$TERM" \
-#  --setenv LANG "$LANG" \
-#  --setenv LANGUAGE "$LANGUAGE" \
-#  --setenv FAKEROOTDONTTRYCHOWN "1" \
-#  --unshare-all \
-#  --share-net \
-#  --chdir $bwrap_chdir \
-#  /bin/sh -c "$cmd"
-
-# Attempt 2 :D
-mkdir -p "$HOME/.cache/ipak/tmp"
-workdir="$(mktemp -d -p "$HOME/.cache/ipak/tmp")"
-if mountpoint -q -- "$HOME/.cache/ipak/root"; then
-	echo "Pass" > /dev/null
-else
-	mkdir -p "$HOME/.cache/ipak/root"
-	echo "Mounting rootfs link..."
-	bindfs --no-allow-other "/" "$HOME/.cache/ipak/root"
-fi
-
-# Required :(
-mkdir -p "$out/rootfs/lib" "$out/rootfs/lib64" "$out/rootfs/usr/lib" "$out/rootfs/usr/lib64"
-
 bwrap --new-session \
- --overlay-src "$HOME/.cache/ipak/root" \
- --overlay "$out/rootfs" "$workdir" / \
+ --bind "$out/rootfs" / \
  --bind /tmp /tmp \
  --proc /proc \
  --dev-bind /dev /dev \
  --bind /run /run \
  --bind-try /media /media \
  --bind-try /mnt /mnt \
- --bind "$out/rootfs/usr/lib" "/usr/lib" \
- --bind "$out/rootfs/usr/lib64" "/usr/lib64" \
- --bind "$out/rootfs/lib" "/lib" \
- --bind "$out/rootfs/lib64" "/lib64" \
+ --bind-try "$out/rootfs/$HOME" "$HOME" \
+ --bind-try $HOME/Downloads $HOME/Downloads \
+ --bind-try $HOME/Desktop $HOME/Desktop \
+ --bind-try $HOME/Documents $HOME/Documents \
+ --bind-try $HOME/Pictures $HOME/Pictures \
+ --bind-try $HOME/Music $HOME/Music \
+ --bind-try $HOME/Videos $HOME/Videos \
+ --bind-try $HOME/Templates $HOME/Templates \
+ --bind-try $HOME/Public $HOME/Public \
+ --overlay-src "/usr/share" \
+ --overlay "$out/rootfs/usr/share" "$share_work" "/usr/share" \
+ --bind-try "$out/rootfs/usr/share/applications" "/usr/share/applications" \
+ --bind-try /sys /sys \
+ --ro-bind-try /etc/resolv.conf /etc/resolv.conf \
+ --ro-bind-try /etc/hosts /etc/hosts \
+ --ro-bind-try /etc/nsswitch.conf /etc/nsswitch.conf \
+ --ro-bind-try /etc/machine-id /etc/machine-id \
+ --ro-bind-try /etc/asound.conf /etc/asound.conf \
+ --ro-bind-try /etc/hostname /etc/hostname \
+ --ro-bind-try /usr/share/fontconfig /usr/share/fontconfig \
+ --ro-bind-try /usr/share/fonts /usr/share/fonts \
+ --ro-bind-try /usr/share/themes /usr/share/themes \
+ --ro-bind-try /lib/firmware /lib/firmware \
  --setenv XDG_RUNTIME_DIR "$XDG_RUNTIME_DIR" \
  --setenv HOME "$HOME" \
  --setenv XDG_CACHE_HOME "$XDG_CACHE_HOME" \
@@ -204,7 +154,7 @@ bwrap --new-session \
  --share-net \
  --chdir $bwrap_chdir \
  /bin/sh -c "$cmd"
-rm -rf $workdir
+
 else
 # Build mode
 # $out/rootfs/usr/bin/
