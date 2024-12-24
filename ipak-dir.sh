@@ -116,8 +116,7 @@ config_work=$(mktemp -d -p "/var/tmp/")
 if [ "$build_mode" == "false" ]; then
 # Inspired by pelf :D
 # $out/rootfs/usr/bin/
-bwrap --new-session \
- --bind "$out/rootfs" / \
+bwrap --bind "$out/rootfs" / \
  --bind /tmp /tmp \
  --proc /proc \
  --dev-bind /dev /dev \
@@ -167,7 +166,6 @@ bwrap --new-session \
  --setenv LANG "$LANG" \
  --setenv LANGUAGE "$LANGUAGE" \
  --setenv FAKEROOTDONTTRYCHOWN "1" \
- --unshare-all \
  --share-net \
  --chdir $bwrap_chdir \
  /bin/sh -c "$cmd"
@@ -179,8 +177,7 @@ done
 else
 # Build mode
 # $out/rootfs/usr/bin/
-bwrap --new-session \
- --bind "$out/rootfs" / \
+bwrap --bind "$out/rootfs" / \
  --proc /proc \
  --dev-bind /dev /dev \
  --ro-bind-try /home /home \
@@ -194,7 +191,6 @@ bwrap --new-session \
  --setenv FAKEROOTDONTTRYCHOWN "1" \
  --setenv PATH "/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/local/games:$HOME/.local/bin" \
  --setenv TERM "$TERM" \
- --unshare-all \
  --share-net \
  /bin/sh -c "$cmd"
 fi

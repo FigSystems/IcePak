@@ -3,5 +3,6 @@
 Name: LibreOffice
 
 shell apk update
-shell apk add --no-cache bash libreoffice util-linux
+shell apk add --no-cache fakeroot
+shell fakeroot apk add --no-cache bash libreoffice util-linux libxinerama libx11 libxcb zlib libstdc++ libgcc libxext
 set-entrypoint /usr/bin/libreoffice
