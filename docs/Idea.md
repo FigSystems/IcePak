@@ -17,16 +17,24 @@ An example of the intended format is as follows. This is just a rough idea of th
 Name: Example
 EntryPoint: /usr/bin/example
 recipe:
-	- FetchSources:
-		script: git clone --depth=1 https://github.com/example/example.git
-	- Build:
-		workdir: example/build
-		script: |
-			../configure --INSTALL_PREFIX="/usr"
-			make install INSTALL_DIR="../../AppDir/"
+  - FetchSources:
+      script: git clone --depth=1 https://github.com/example/example.git
+  - Build:
+      workdir: example/build
+      script: |
+        ../configure --INSTALL_PREFIX="/usr"
+        make install INSTALL_DIR="../../AppDir/"
+
+AddLibs:
+  # Entrypoint is automatically added to the list of files.
+  files: /usr/bin/example-resource
+  extra: libcap.so.2
 ```
 
 Each of the steps in the `recipe` section will be executed sequentally.
  - If the step contains a `workdir` key, the script will be executed in that directory,
   creating it if it does not already exist.
  - The script will be executed, line-by-line failing if an error is ecountered.
+
+The `AddLibs` section contains a list of files that will have their required libraries included.
+One can also specify additional libraries in the extra field.
