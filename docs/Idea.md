@@ -25,3 +25,8 @@ recipe:
 			../configure --INSTALL_PREFIX="/usr"
 			make install INSTALL_DIR="../../AppDir/"
 ```
+
+Each of the steps in the `recipe` section will be executed sequentally.
+ - If the step contains a `workdir` key, the script will be executed in that directory,
+  creating it if it does not already exist.
+ - The script will be executed, line-by-line failing if an error is ecountered.
