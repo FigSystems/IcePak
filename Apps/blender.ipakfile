@@ -1,7 +1,0 @@
-< debian
-> Out/blender.ipak
-Name: Blender
-
-shell fakeroot apt -y update
-shell fakeroot apt -y install blender adwaita-icon-theme
-set-entrypoint blender

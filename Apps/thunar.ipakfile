@@ -1,7 +1,0 @@
-< alpine
-> Out/thunar.ipak
-Name: Thunar
-
-shell apk update
-shell apk add --no-cache thunar
-set-entrypoint thunar

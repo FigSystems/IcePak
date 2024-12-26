@@ -1,9 +1,0 @@
-< debian
-> Out/onlyoffice.ipak
-Name: OnlyOffice
-
-shell fakeroot apt-get update
-shell fakeroot apt install -y wget libnss3
-shell fakeroot wget -O /tmp/onlyoffice.deb https://download.onlyoffice.com/install/desktop/editors/linux/onlyoffice-desktopeditors_amd64.deb
-shell fakeroot apt install -y /tmp/onlyoffice.deb
-set-entrypoint onlyoffice-desktopeditors
