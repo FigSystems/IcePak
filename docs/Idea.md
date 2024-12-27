@@ -24,11 +24,11 @@ recipe:
       script: |
         ../configure --INSTALL_PREFIX="/usr"
         make install INSTALL_DIR="../../AppDir/"
-
-AddLibs:
-  # Entrypoint is automatically added to the list of files.
-  files: /usr/bin/example-resource
-  extra: libcap.so.2
+  - Libraries:
+      type: libraries
+      # Entrypoint is automatically added to the list of files.
+      files: /usr/bin/example-resource
+      extra: libcap.so.2
 ```
 
 Each of the steps in the `recipe` section will be executed sequentally.
@@ -36,5 +36,12 @@ Each of the steps in the `recipe` section will be executed sequentally.
   creating it if it does not already exist.
  - The script will be executed, line-by-line failing if an error is ecountered.
 
-The `AddLibs` section contains a list of files that will have their required libraries included.
-One can also specify additional libraries in the extra field.
+The `Libraries` section contains a list of files that will have their required libraries included.
+One can also specify additional libraries in the `extra` field. The type field is used to distinguish between `standard` entries and other types, in this case `libraries`. The current types are (More to come in the future):
+ - `standard`
+ - `libraries`
+
+In IcePak we should also attempt to provide absolute path support. `/usr` will be bind mounted inside the container giving the application the ability to reference its resources absolutely.
+This helps solve the problem with AppImages that make it difficult to use like a traditional binary. An appimage needs to remember where it was executed from to access any resources, wheras with an IcePak, an application knows it will always be at `/usr` (Although, optionally, an application could have all it's data at `/App` for instance.)
+
+IcePak should make it very easy for a team of developers to have an **IcePak** option without the fear of excessive maintainence work or fear of things breaking. It should be trivial to offer `.deb`, `.rpm`, and `.ipak` all without significantly different build process for each. If the portable app community wants developers to make applications in their format there should be a very simple, well defined, process of getting started.
