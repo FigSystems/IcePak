@@ -14,9 +14,10 @@ Each application will be built and installed from source using instructions in a
 An example of the intended format is as follows. This is just a rough idea of the format and should not be followed as a reference for recipe developers. This is just for the IcePak developers to roughly follow this design.
 
 ```yaml
-Name: Example
-EntryPoint: /usr/bin/example
-recipe:
+App: Example
+  EntryPoint: /usr/bin/example
+  OutputDirectory: build/example
+Recipe:
   - FetchSources:
       script: git clone --depth=1 https://github.com/example/example.git
   - Build:
