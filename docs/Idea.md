@@ -27,9 +27,7 @@ Recipe:
         make install INSTALL_DIR="../../AppDir/"
   - Libraries:
       type: libraries
-      # Entrypoint is automatically added to the list of files.
-      files: /usr/bin/example-resource
-      extra: libcap.so.2
+      files: /usr/bin/example /usr/bin/example-resource
 ```
 
 Each of the steps in the `recipe` section will be executed sequentally.
@@ -38,7 +36,7 @@ Each of the steps in the `recipe` section will be executed sequentally.
  - The script will be executed, line-by-line failing if an error is ecountered.
 
 The `Libraries` section contains a list of files that will have their required libraries included.
-One can also specify additional libraries in the `extra` field. The type field is used to distinguish between `standard` entries and other types, in this case `libraries`. The current types are (More to come in the future):
+The type field is used to distinguish between `standard` entries and other types, in this case `libraries`. The current types are (More to come in the future):
  - `standard`
  - `libraries`
 
