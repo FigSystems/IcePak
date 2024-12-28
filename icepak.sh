@@ -188,20 +188,21 @@ function build() {
 	done
 
 	CONFIG_INDICES=$(get_config_indices "$RECIPE")
+	mkdir -p "$build_dir/AppDir/.config"
 
 	for CONFIG_INDEX in $CONFIG_INDICES; do
 		if [ "$VERBOSE" == "true" ]; then
 			echo "Config: $CONFIG_INDEX"
 		fi
 
-		CONFIG_NAME=$(yq ".Config.$CONFIG_INDEX | key" "$RECIPE")
+		CONFIG_NAME=$(yq ".Config.$CONFIG_INDEX.[] | key" "$RECIPE")
 		CONFIG_VALUE=$(yq ".Config.$CONFIG_INDEX.$CONFIG_NAME" "$RECIPE")
 
 		if [ "$VERBOSE" == "true" ]; then
 			echo "$CONFIG_NAME = $CONFIG_VALUE"
 		fi
 
-		cat "$CONFIG_VALUE" > "$build_dir/AppDir/.config/$CONFIG_NAME"
+		echo "$CONFIG_VALUE" > "$build_dir/AppDir/.config/$CONFIG_NAME"
 	done
 
 	rm "$build_dir/AppDir"
