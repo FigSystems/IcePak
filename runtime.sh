@@ -49,6 +49,31 @@ function non_existent_config_option_error() {
 	return 1
 }
 
+function bwrap_bind_mount_root() {
+	local ARGS
+	ARGS=""
+	for d in /*; do
+		ARGS="$ARGS --dev-bind $d $d"
+	done
+
+	echo "$ARGS"
+}
+
+function bwrap_bind_app() {
+	local ARGS
+	ARGS=""
+	for d in $SELF_DIR/*; do
+		if [ "$d" == "/lib" ] || [ "$d" == "/lib64" ]; then
+			continue
+		fi
+		ARGS="$ARGS --dev-bind $d $d"
+	done
+
+	echo "$ARGS"
+}
+
 config_option_exists entrypoint || exit $(non_existent_config_option_error entrypoint)
 
-zenity --info --text="Entrypoint: $(get_required_config_option entrypoint)"
+entrypoint="$(get_config_option entrypoint)"
+
+bwrap $(bwrap_bind_mount_root) $(bwrap_bind_app) -- "$entrypoint" "$@"
