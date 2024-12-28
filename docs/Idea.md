@@ -49,7 +49,7 @@ This helps solve the problem with AppImages that make it difficult to use like a
 IcePak should make it very easy for a team of developers to have an **IcePak** option without the fear of excessive maintainence work or fear of things breaking. It should be trivial to offer `.deb`, `.rpm`, and `.ipak` all without significantly different build process for each. If the portable app community wants developers to make applications in their format there should be a very simple, well defined, process for them getting started.
 
 In an `AppDir` a config directory will be present under the name `.config/`. Files existing under here will be used like variables to hold config options. The list is as follows:
- - `entrypoint` Used to determine the entrypoint.
+ - `entrypoint` Used to determine the entrypoint. Must be relative to `/`
 
 ## Runtime
 
