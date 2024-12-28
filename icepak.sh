@@ -58,9 +58,9 @@ function verify_recipe() {
 		exit 1
 	fi
 
-	if [ $(yq '.App | has("EntryPoint")' "$1") != "true" ]; then
+	if [ $(yq 'has("Config")' "$1") != "true" ]; then
 		echo "Invalid recipe: $1"
-		echo "Missing App.EntryPoint"
+		echo "Missing Config section"
 		exit 1
 	fi
 
@@ -113,6 +113,12 @@ function get_recipe_step_indices() {
 	STEP_INDICES=$(yq '.Recipe.[] | key' "$1" | tr '\n' ' ')
 
 	echo "$STEP_INDICES"
+}
+
+function get_config_indices() {
+	CONFIG_INDICES=$(yq '.Config.[] | key' "$1" | tr '\n' ' ')
+
+	echo "$CONFIG_INDICES"
 }
 
 function get_libraries() {
@@ -179,6 +185,23 @@ function build() {
 		fi
 
 		cd "$build_dir"
+	done
+
+	CONFIG_INDICES=$(get_config_indices "$RECIPE")
+
+	for CONFIG_INDEX in $CONFIG_INDICES; do
+		if [ "$VERBOSE" == "true" ]; then
+			echo "Config: $CONFIG_INDEX"
+		fi
+
+		CONFIG_NAME=$(yq ".Config.$CONFIG_INDEX | key" "$RECIPE")
+		CONFIG_VALUE=$(yq ".Config.$CONFIG_INDEX.$CONFIG_NAME" "$RECIPE")
+
+		if [ "$VERBOSE" == "true" ]; then
+			echo "$CONFIG_NAME = $CONFIG_VALUE"
+		fi
+
+		cat "$CONFIG_VALUE" > "$build_dir/AppDir/.config/$CONFIG_NAME"
 	done
 
 	rm "$build_dir/AppDir"
