@@ -44,3 +44,7 @@ In IcePak we should also attempt to provide absolute path support. `/usr` will b
 This helps solve the problem with AppImages that make it difficult to use like a traditional binary. An appimage needs to remember where it was executed from to access any resources, wheras with an IcePak, an application knows it will always be at `/usr` (Although, optionally, an application could have all it's data at `/App` for instance.)
 
 IcePak should make it very easy for a team of developers to have an **IcePak** option without the fear of excessive maintainence work or fear of things breaking. It should be trivial to offer `.deb`, `.rpm`, and `.ipak` all without significantly different build process for each. If the portable app community wants developers to make applications in their format there should be a very simple, well defined, process for them getting started.
+
+## Runtime
+
+Inside each application's AppDir, any files and directories in that directory will be directely bind-mounted to `/$NAME` (e.g. `AppDir/usr` would be bind mounted to `/usr`). Most applications will opt to have their binaries installed under the `/usr` prefix, but theoretically you could put your applications files under `/App` too.
