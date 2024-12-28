@@ -205,6 +205,15 @@ function build() {
 		echo "$CONFIG_VALUE" > "$build_dir/AppDir/.config/$CONFIG_NAME"
 	done
 
+	if [ $(yq ".Config.[] | has(\"entrypoint\")" "$RECIPE") != "true" ]; then
+		echo "Entrypoint not set"
+		echo "Please set the entrypoint in the config using:"
+		echo
+		echo "Config:"
+		echo "  - entrypoint: /path/to/entrypoint"
+		exit 1
+	fi
+
 	rm "$build_dir/AppDir"
 	rm -rf "$build_dir"
 }

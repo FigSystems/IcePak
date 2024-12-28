@@ -54,3 +54,5 @@ In an `AppDir` a config directory will be present under the name `.config/`. Fil
 ## Runtime
 
 Inside each application's AppDir, any files and directories in that directory will be directely bind-mounted to `/$NAME` (e.g. `AppDir/usr` would be bind mounted to `/usr`). Most applications will opt to have their binaries installed under the `/usr` prefix, but theoretically you could put your applications files under `/App` too.
+
+The config option `entrypoint` determines the file to be started upon application launch. In essence, the IcePak's starting point. If this config option is not set or the file is not found, then the runtime will use zenity to display an error message but if zenity is not installed then it will print an error to the terminal.
