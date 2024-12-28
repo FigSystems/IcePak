@@ -3,9 +3,6 @@
 SELF="$(readlink -f "$0")"
 SELF_DIR="$(dirname "$SELF")"
 
-trap "exit 1" TERM
-export TOP_PID=$$
-
 function display_error() {
 	if which zenity > /dev/null; then
 		zenity --error --text="$1"
@@ -39,16 +36,19 @@ function get_config_option() {
 	return 0
 }
 
-function get_required_config_option() {
-	local VALUE
-	VALUE=$(get_config_option "$1")
-	get_config_option "$1"
-
-	if [ $? != 0 ]; then
-		display_error "Missing required config option: $1. This is a problem with the application. Please contact the application's developer and report this error message to them."
+function config_option_exists() {
+	if [ ! -f "$SELF_DIR/.config/$1" ]; then
+		return 1
 	fi
 
-	echo "$VALUE"
+	return 0
 }
+
+function non_existent_config_option_error() {
+	display_error "Missing required config option: $1. This is a problem with the application. Please contact the application's developer and report this error message to them."
+	return 1
+}
+
+config_option_exists entrypoint || exit $(non_existent_config_option_error entrypoint)
 
 zenity --info --text="Entrypoint: $(get_required_config_option entrypoint)"
