@@ -59,6 +59,15 @@ function bwrap_bind_mount_root() {
 		if [ -d "$SELF_DIR/$d" ] || [ -f "$SELF_DIR/$d" ]; then
 			continue
 		fi
+		if [ "$d" == "/usr" ]; then
+			for d2 in /usr/*; do
+				if [ "$d2" == "/usr/lib" ] || [ "$d2" == "/usr/lib64" ]; then
+					continue
+				fi
+				ARGS="$ARGS --dev-bind $d2 $d2"
+			done
+			continue
+		fi
 		ARGS="$ARGS --dev-bind $d $d"
 	done
 
