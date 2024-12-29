@@ -152,6 +152,9 @@ function build() {
 			echo "Step: $STEP_INDEX"
 		fi
 
+		STEP_NAME=$(yq ".Recipe.$STEP_INDEX.[] | key" "$RECIPE")
+		echo "===== $STEP_NAME ======"
+
 		TYPE="standard"
 		STEP=$(yq ".Recipe.$STEP_INDEX" "$RECIPE")
 
@@ -186,6 +189,8 @@ function build() {
 
 		cd "$build_dir"
 	done
+
+	ln -sfT "/usr/lib" "$build_dir/AppDir/lib64"
 
 	CONFIG_INDICES=$(get_config_indices "$RECIPE")
 	mkdir -p "$build_dir/AppDir/.config"

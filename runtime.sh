@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 SELF="$(readlink -f "$0")"
 SELF_DIR="$(dirname "$SELF")"
@@ -53,6 +53,12 @@ function bwrap_bind_mount_root() {
 	local ARGS
 	ARGS=""
 	for d in /*; do
+		if [ "$d" == "/lib" ] || [ "$d" == "/lib64" ]; then
+			continue
+		fi
+		if [ -d "$SELF_DIR/$d" ] || [ -f "$SELF_DIR/$d" ]; then
+			continue
+		fi
 		ARGS="$ARGS --dev-bind $d $d"
 	done
 
@@ -63,17 +69,33 @@ function bwrap_bind_app() {
 	local ARGS
 	ARGS=""
 	for d in $SELF_DIR/*; do
-		if [ "$d" == "/lib" ] || [ "$d" == "/lib64" ]; then
-			continue
-		fi
-		ARGS="$ARGS --dev-bind $d $d"
+		ARGS="$ARGS --dev-bind $d /$(basename "$d")"
 	done
 
 	echo "$ARGS"
+}
+
+function bwrap_forward_enviroment() {
+	env -0 | while IFS='=' read -r -d '' n v; do
+		if [ "$n" == "LD_LIBRARY_PATH" ] || [ "$n" == "_" ]; then
+			continue
+		fi
+		if [ "${n:0:4}" == "XDG_" ]; then
+    		printf -- '--setenv %s %s\n' "$n" "$v"
+		fi
+	done
 }
 
 config_option_exists entrypoint || exit $(non_existent_config_option_error entrypoint)
 
 entrypoint="$(get_config_option entrypoint)"
 
-bwrap $(bwrap_bind_mount_root) $(bwrap_bind_app) -- "$entrypoint" "$@"
+FORWARD_ENVIROMENT="$(bwrap_forward_enviroment)"
+echo "$FORWARD_ENVIROMENT"
+
+bwrap $(bwrap_bind_mount_root) \
+	$(bwrap_bind_app) \
+	$(bwrap_forward_enviroment) \
+	$(get_config_option additional_bwrap_options) \
+	--setenv LD_LIBRARY_PATH "/usr/lib" \
+	-- "$entrypoint" "$@"
