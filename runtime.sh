@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 SELF="$(readlink -f "$0")"
 SELF_DIR="$(dirname "$SELF")"
@@ -106,5 +106,5 @@ bwrap $(bwrap_bind_mount_root) \
 	$(bwrap_bind_app) \
 	$(bwrap_forward_enviroment) \
 	$(get_config_option additional_bwrap_options) \
-	--setenv LD_LIBRARY_PATH "/usr/lib" \
+	--setenv LD_LIBRARY_PATH "/lib" \
 	-- "$entrypoint" "$@"

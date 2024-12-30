@@ -172,8 +172,8 @@ function build() {
 
 		if [ $TYPE == "libraries" ] && [ $(yq ".Recipe.$STEP_INDEX.[] | has(\"files\")" "$RECIPE") == "true" ]; then
 			FILES=$(yq ".Recipe.$STEP_INDEX.[].files" "$RECIPE")
-			mkdir -p "$build_dir/AppDir/usr/lib/"
-			cp $(get_libraries $FILES) "$build_dir/AppDir/usr/lib/"
+			mkdir -p "$build_dir/AppDir/lib/"
+			cp $(get_libraries $FILES) "$build_dir/AppDir/lib/"
 		fi
 
 		if [ $(yq ".Recipe.$STEP_INDEX.[] | has(\"script\")" "$RECIPE") == "true" ]; then
@@ -190,7 +190,7 @@ function build() {
 		cd "$build_dir"
 	done
 
-	ln -sfT "/usr/lib" "$build_dir/AppDir/lib64"
+	ln -sfT "/lib" "$build_dir/AppDir/lib64"
 
 	CONFIG_INDICES=$(get_config_indices "$RECIPE")
 	mkdir -p "$build_dir/AppDir/.config"
