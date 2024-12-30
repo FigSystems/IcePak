@@ -158,11 +158,11 @@ function build() {
 		TYPE="standard"
 		STEP=$(yq ".Recipe.$STEP_INDEX" "$RECIPE")
 
-		if [ $(yq ".Recipe.$STEP_INDEX.[] | has(\"type\")" "$RECIPE") == "true" ]; then
+		if $(yq ".Recipe.$STEP_INDEX.[] | has(\"type\")" "$RECIPE" | grep -q true); then
 			TYPE=$(yq ".Recipe.$STEP_INDEX.[].type" "$RECIPE")
 		fi
 
-		if [ $(yq ".Recipe.$STEP_INDEX.[] | has(\"workdir\")" "$RECIPE") == "true" ]; then
+		if $(yq ".Recipe.$STEP_INDEX.[] | has(\"workdir\")" "$RECIPE" | grep -q true); then
 			WORKDIR=$(yq ".Recipe.$STEP_INDEX.[].workdir" "$RECIPE")
 			if [ ! -d "$WORKDIR" ]; then
 				mkdir -p "$WORKDIR"
@@ -170,13 +170,13 @@ function build() {
 			cd "$WORKDIR"
 		fi
 
-		if [ $TYPE == "libraries" ] && [ $(yq ".Recipe.$STEP_INDEX.[] | has(\"files\")" "$RECIPE") == "true" ]; then
+		if [ $TYPE == "libraries" ] && $(yq ".Recipe.$STEP_INDEX.[] | has(\"files\")" "$RECIPE" | grep -q true); then
 			FILES=$(yq ".Recipe.$STEP_INDEX.[].files" "$RECIPE")
 			mkdir -p "$build_dir/AppDir/lib/"
 			cp $(get_libraries $FILES) "$build_dir/AppDir/lib/"
 		fi
 
-		if [ $(yq ".Recipe.$STEP_INDEX.[] | has(\"script\")" "$RECIPE") == "true" ]; then
+		if $(yq ".Recipe.$STEP_INDEX[] | has(\"script\")" "$RECIPE" | grep -q true); then
 			SCRIPT=$(yq ".Recipe.$STEP_INDEX.[].script" "$RECIPE")
 			if [ "$VERBOSE" == "true" ]; then
 				echo "Directory: $(pwd)"
