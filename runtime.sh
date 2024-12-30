@@ -99,9 +99,6 @@ config_option_exists entrypoint || exit $(non_existent_config_option_error entry
 
 entrypoint="$(get_config_option entrypoint)"
 
-FORWARD_ENVIROMENT="$(bwrap_forward_enviroment)"
-echo "$FORWARD_ENVIROMENT"
-
 bwrap $(bwrap_bind_mount_root) \
 	$(bwrap_bind_app) \
 	$(bwrap_forward_enviroment) \
