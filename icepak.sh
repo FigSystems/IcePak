@@ -195,6 +195,8 @@ function build() {
 	CONFIG_INDICES=$(get_config_indices "$RECIPE")
 	mkdir -p "$build_dir/AppDir/.config"
 
+	ENTRYPOINT_SET=false
+
 	for CONFIG_INDEX in $CONFIG_INDICES; do
 		if [ "$VERBOSE" == "true" ]; then
 			echo "Config: $CONFIG_INDEX"
@@ -208,9 +210,13 @@ function build() {
 		fi
 
 		echo "$CONFIG_VALUE" > "$build_dir/AppDir/.config/$CONFIG_NAME"
+
+		if [ "$CONFIG_NAME" == "entrypoint" ]; then
+			ENTRYPOINT_SET=true
+		fi
 	done
 
-	if [ $(yq ".Config.[] | has(\"entrypoint\")" "$RECIPE") != "true" ]; then
+	if [ $ENTRYPOINT_SET == "false" ]; then
 		echo "Entrypoint not set"
 		echo "Please set the entrypoint in the config using:"
 		echo
