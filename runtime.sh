@@ -107,6 +107,6 @@ entrypoint="$(get_config_option entrypoint)"
 bwrap $(bwrap_bind_mount_root) \
 	$(bwrap_bind_app) \
 	$(bwrap_forward_enviroment) \
-	$(get_config_option additional_bwrap_options) \
 	--setenv LD_LIBRARY_PATH "/lib" \
+	$(get_config_option additional_bwrap_options) \
 	-- "$entrypoint" "$@"

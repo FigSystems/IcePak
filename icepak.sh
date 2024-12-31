@@ -168,10 +168,26 @@ function get_config_indices() {
 }
 
 function get_libraries() {
+	local LIB
+	LIB=""
 	LIBS=""
 	for i in "$@"; do
-		LIBS="$LIBS $(ldd "$i" | grep "=>" | cut -d " " -f 3 | tr '\n' ' ' | awk '{$1=$1};1')"
+		LIB2="$(ldd "$i" | cut -d " " -f 3 | tr '\n' ' ' | awk '{$1=$1};1')"
+		# echo "$LIB" >&2
+
+		for lib in $LIB2; do
+			if [ "$lib" == "not" ]; then
+				continue # not found
+			fi
+			if [ ! -f "$lib" ]; then
+				echo "${YELLOW}Warning: Library not found: $lib${RESET}!" >&2
+				continue # not found
+			fi
+			LIBS="$LIBS $lib"
+		done
 	done
+
+	LIBS=$( set -f; printf "%s\n" $LIBS | sort -u | paste -sd" " )
 
 	echo "$LIBS"
 }
@@ -219,7 +235,7 @@ function build() {
 		if [ $TYPE == "libraries" ] && $(yq ".Recipe.$STEP_INDEX.[] | has(\"files\")" "$RECIPE" | grep -q true); then
 			FILES=$(yq ".Recipe.$STEP_INDEX.[].files" "$RECIPE")
 			mkdir -p "$build_dir/AppDir/lib/"
-			cp $(get_libraries $FILES) "$build_dir/AppDir/lib/"
+			cp --no-clobber $(get_libraries $FILES) "$build_dir/AppDir/lib/"
 		fi
 
 		if $(yq ".Recipe.$STEP_INDEX[] | has(\"script\")" "$RECIPE" | grep -q true); then
