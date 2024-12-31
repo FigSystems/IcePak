@@ -1,5 +1,25 @@
 #!/bin/bash
 
+export RESET="$(tput sgr0)"
+export BLACK="$(tput setaf 0)"
+export RED="$(tput setaf 1)"
+export GREEN="$(tput setaf 2)"
+export YELLOW="$(tput setaf 3)"
+export BLUE="$(tput setaf 4)"
+export MAGENTA="$(tput setaf 5)"
+export CYAN="$(tput setaf 6)"
+export WHITE="$(tput setaf 7)"
+export BRIGHT_BLACK="$(tput setaf 8)"
+export BRIGHT_RED="$(tput setaf 9)"
+export BRIGHT_GREEN="$(tput setaf 10)"
+export BRIGHT_YELLOW="$(tput setaf 11)"
+export BRIGHT_BLUE="$(tput setaf 12)"
+export BRIGHT_MAGENTA="$(tput setaf 13)"
+export BRIGHT_CYAN="$(tput setaf 14)"
+export BRIGHT_WHITE="$(tput setaf 15)"
+
+
+
 set -eo pipefail
 
 POSITONAL_ARGS=()
@@ -37,6 +57,13 @@ if [ -z "$COMMAND" ]; then
 	exit 1
 fi
 
+function error() {
+	echo "${RED}Error: $1${RESET}"
+	echo
+	echo "${YELLOW}$2${RESET}"
+	echo
+	echo "${GREEN}$3${RESET}"
+}
 
 
 function verify_recipe() {
@@ -67,6 +94,32 @@ function verify_recipe() {
 	if [ $(yq '.App | has("OutputDirectory")' "$1") != "true" ]; then
 		echo "Invalid recipe: $1"
 		echo "Missing App.OutputDirectory"
+		exit 1
+	fi
+
+	ENTRYPOINT_SET=false
+
+	for CONFIG_INDEX in $CONFIG_INDICES; do
+		if [ "$CONFIG_NAME" == "entrypoint" ]; then
+			ENTRYPOINT_SET=true
+		fi
+	done
+
+	if [ $ENTRYPOINT_SET == "false" ]; then
+		# echo "${BRIGHT_RED}Error:${RESET}"
+		# echo -n "${BRIGHT_RED}"
+		# echo "  Entrypoint not set!"
+		# echo -n "${YELLOW}"
+		# echo "Please add the entrypoint to the config using:"
+		# echo
+		# echo "${GREEN}+ Config:${RESET}"
+		# echo "${GREEN}+   - entrypoint: /path/to/entrypoint${RESET}"
+		# echo -n "${RESET}"
+		error \
+			"Entrypoint not set!" \
+			"Please add the entrypoint to the config using:" \
+			"+ Config:
++   - entrypoint: /path/to/entrypoint"
 		exit 1
 	fi
 }
@@ -153,7 +206,7 @@ function build() {
 		fi
 
 		STEP_NAME=$(yq ".Recipe.$STEP_INDEX.[] | key" "$RECIPE")
-		echo "===== $STEP_NAME ======"
+		echo "===== ${BRIGHT_GREEN}$STEP_NAME${RESET} ======"
 
 		TYPE="standard"
 		STEP=$(yq ".Recipe.$STEP_INDEX" "$RECIPE")
@@ -215,15 +268,6 @@ function build() {
 			ENTRYPOINT_SET=true
 		fi
 	done
-
-	if [ $ENTRYPOINT_SET == "false" ]; then
-		echo "Entrypoint not set"
-		echo "Please set the entrypoint in the config using:"
-		echo
-		echo "Config:"
-		echo "  - entrypoint: /path/to/entrypoint"
-		exit 1
-	fi
 
 	rm "$build_dir/AppDir"
 	rm -rf "$build_dir"
