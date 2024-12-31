@@ -1,5 +1,25 @@
 #!/bin/bash
 
+export RESET="$(tput sgr0)"
+export BLACK="$(tput setaf 0)"
+export RED="$(tput setaf 1)"
+export GREEN="$(tput setaf 2)"
+export YELLOW="$(tput setaf 3)"
+export BLUE="$(tput setaf 4)"
+export MAGENTA="$(tput setaf 5)"
+export CYAN="$(tput setaf 6)"
+export WHITE="$(tput setaf 7)"
+export BRIGHT_BLACK="$(tput setaf 8)"
+export BRIGHT_RED="$(tput setaf 9)"
+export BRIGHT_GREEN="$(tput setaf 10)"
+export BRIGHT_YELLOW="$(tput setaf 11)"
+export BRIGHT_BLUE="$(tput setaf 12)"
+export BRIGHT_MAGENTA="$(tput setaf 13)"
+export BRIGHT_CYAN="$(tput setaf 14)"
+export BRIGHT_WHITE="$(tput setaf 15)"
+
+
+
 set -eo pipefail
 
 POSITONAL_ARGS=()
@@ -37,6 +57,13 @@ if [ -z "$COMMAND" ]; then
 	exit 1
 fi
 
+function config_error() {
+	echo "${RED}Error: $1${RESET}"
+	echo
+	echo "${YELLOW}$2${RESET}"
+	echo
+	echo "${GREEN}$3${RESET}"
+}
 
 
 function verify_recipe() {
@@ -69,6 +96,27 @@ function verify_recipe() {
 		echo "Missing App.OutputDirectory"
 		exit 1
 	fi
+
+	CONFIG_INDICES=$(get_config_indices "$RECIPE")
+	ENTRYPOINT_SET=false
+
+	for CONFIG_INDEX in $CONFIG_INDICES; do
+		CONFIG_NAME=$(yq ".Config.$CONFIG_INDEX.[] | key" "$RECIPE")
+		CONFIG_VALUE=$(yq ".Config.$CONFIG_INDEX.$CONFIG_NAME" "$RECIPE")
+
+		if [ "$CONFIG_NAME" == "entrypoint" ]; then
+			ENTRYPOINT_SET=true
+		fi
+	done
+
+	if [ $ENTRYPOINT_SET == "false" ]; then
+		config_error \
+			"Entrypoint not set!" \
+			"Please add the entrypoint to the config using:" \
+			"+ Config:
++   - entrypoint: /path/to/entrypoint"
+		exit 1
+	fi
 }
 
 function init() {
@@ -98,13 +146,11 @@ function init() {
 	verify_recipe "$RECIPE"
 
 	APP_NAME=$(yq '.App.Name' "$RECIPE")
-	ENTRY_POINT=$(yq '.App.EntryPoint' "$RECIPE")
 	OUTPUT_DIRECTORY=$(yq '.App.OutputDirectory' "$RECIPE")
 
 	if [ "$VERBOSE" == "true" ]; then
 		echo "Recipe: $RECIPE"
 		echo "App.Name: $APP_NAME"
-		echo "App.EntryPoint: $ENTRY_POINT"
 		echo "App.OutputDirectory: $OUTPUT_DIRECTORY"
 	fi
 }
@@ -153,7 +199,7 @@ function build() {
 		fi
 
 		STEP_NAME=$(yq ".Recipe.$STEP_INDEX.[] | key" "$RECIPE")
-		echo "===== $STEP_NAME ======"
+		echo "===== ${BRIGHT_GREEN}$STEP_NAME${RESET} ======"
 
 		TYPE="standard"
 		STEP=$(yq ".Recipe.$STEP_INDEX" "$RECIPE")
@@ -195,8 +241,6 @@ function build() {
 	CONFIG_INDICES=$(get_config_indices "$RECIPE")
 	mkdir -p "$build_dir/AppDir/.config"
 
-	ENTRYPOINT_SET=false
-
 	for CONFIG_INDEX in $CONFIG_INDICES; do
 		if [ "$VERBOSE" == "true" ]; then
 			echo "Config: $CONFIG_INDEX"
@@ -210,20 +254,7 @@ function build() {
 		fi
 
 		echo "$CONFIG_VALUE" > "$build_dir/AppDir/.config/$CONFIG_NAME"
-
-		if [ "$CONFIG_NAME" == "entrypoint" ]; then
-			ENTRYPOINT_SET=true
-		fi
 	done
-
-	if [ $ENTRYPOINT_SET == "false" ]; then
-		echo "Entrypoint not set"
-		echo "Please set the entrypoint in the config using:"
-		echo
-		echo "Config:"
-		echo "  - entrypoint: /path/to/entrypoint"
-		exit 1
-	fi
 
 	rm "$build_dir/AppDir"
 	rm -rf "$build_dir"
