@@ -61,7 +61,7 @@ function bwrap_bind_mount_root() {
 		fi
 		if [ "$d" == "/usr" ]; then
 			for d2 in /usr/*; do
-				if [ "$d2" == "/usr/lib" ] || [ "$d2" == "/usr/lib64" ]; then
+				if [ "$d2" == "/usr/lib" ] || [ "$d2" == "/usr/lib64" ] || ([ -d "$SELF_DIR/usr.local/" ] && [ "$d2" == "/usr/local" ]); then
 					continue
 				fi
 				ARGS="$ARGS --dev-bind $d2 $d2"
@@ -78,6 +78,11 @@ function bwrap_bind_app() {
 	local ARGS
 	ARGS=""
 	for d in $SELF_DIR/*; do
+		if [ "$d" == "$SELF_DIR/usr.local" ]; then
+			ARGS="$ARGS --dev-bind $d /usr/local"
+			continue
+		fi
+
 		ARGS="$ARGS --dev-bind $d /$(basename "$d")"
 	done
 
