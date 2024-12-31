@@ -57,7 +57,7 @@ if [ -z "$COMMAND" ]; then
 	exit 1
 fi
 
-function error() {
+function config_error() {
 	echo "${RED}Error: $1${RESET}"
 	echo
 	echo "${YELLOW}$2${RESET}"
@@ -97,25 +97,20 @@ function verify_recipe() {
 		exit 1
 	fi
 
+	CONFIG_INDICES=$(get_config_indices "$RECIPE")
 	ENTRYPOINT_SET=false
 
 	for CONFIG_INDEX in $CONFIG_INDICES; do
+		CONFIG_NAME=$(yq ".Config.$CONFIG_INDEX.[] | key" "$RECIPE")
+		CONFIG_VALUE=$(yq ".Config.$CONFIG_INDEX.$CONFIG_NAME" "$RECIPE")
+
 		if [ "$CONFIG_NAME" == "entrypoint" ]; then
 			ENTRYPOINT_SET=true
 		fi
 	done
 
 	if [ $ENTRYPOINT_SET == "false" ]; then
-		# echo "${BRIGHT_RED}Error:${RESET}"
-		# echo -n "${BRIGHT_RED}"
-		# echo "  Entrypoint not set!"
-		# echo -n "${YELLOW}"
-		# echo "Please add the entrypoint to the config using:"
-		# echo
-		# echo "${GREEN}+ Config:${RESET}"
-		# echo "${GREEN}+   - entrypoint: /path/to/entrypoint${RESET}"
-		# echo -n "${RESET}"
-		error \
+		config_error \
 			"Entrypoint not set!" \
 			"Please add the entrypoint to the config using:" \
 			"+ Config:
@@ -151,13 +146,11 @@ function init() {
 	verify_recipe "$RECIPE"
 
 	APP_NAME=$(yq '.App.Name' "$RECIPE")
-	ENTRY_POINT=$(yq '.App.EntryPoint' "$RECIPE")
 	OUTPUT_DIRECTORY=$(yq '.App.OutputDirectory' "$RECIPE")
 
 	if [ "$VERBOSE" == "true" ]; then
 		echo "Recipe: $RECIPE"
 		echo "App.Name: $APP_NAME"
-		echo "App.EntryPoint: $ENTRY_POINT"
 		echo "App.OutputDirectory: $OUTPUT_DIRECTORY"
 	fi
 }
@@ -248,8 +241,6 @@ function build() {
 	CONFIG_INDICES=$(get_config_indices "$RECIPE")
 	mkdir -p "$build_dir/AppDir/.config"
 
-	ENTRYPOINT_SET=false
-
 	for CONFIG_INDEX in $CONFIG_INDICES; do
 		if [ "$VERBOSE" == "true" ]; then
 			echo "Config: $CONFIG_INDEX"
@@ -263,10 +254,6 @@ function build() {
 		fi
 
 		echo "$CONFIG_VALUE" > "$build_dir/AppDir/.config/$CONFIG_NAME"
-
-		if [ "$CONFIG_NAME" == "entrypoint" ]; then
-			ENTRYPOINT_SET=true
-		fi
 	done
 
 	rm "$build_dir/AppDir"
