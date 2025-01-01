@@ -126,10 +126,36 @@ function init() {
 
 	APP_NAME=$(yq '.App.Name' "$RECIPE")
 	OUTPUT_DIRECTORY=$(yq '.App.OutputDirectory' "$RECIPE")
+	BUILD_TYPE="$(yq '.Type.Type' "$RECIPE")"
 
 	if [ "$VERBOSE" == "true" ]; then
 		echo "Recipe: $RECIPE"
 		echo "App.Name: $APP_NAME"
 		echo "App.OutputDirectory: $OUTPUT_DIRECTORY"
+		echo "Type: $BUILD_TYPE"
 	fi
 }
+
+init $1
+
+function build() {
+	build_dir=$(mktemp -d)
+	ln -sfT "$(readlink -f "$OUTPUT_DIRECTORY")" "$build_dir/AppDir"
+
+	if [ "${BUILD_TYPE:0:3}" == "tar" ]; then
+		TAR_SUBTYPE="${BUILD_TYPE:3}"
+
+		case $TAR_SUBTYPE in
+			.gz)
+				tar xf "$RECIPE" -C "$build_dir"
+
+}
+
+
+
+if [ "$COMMAND" == "build" ]; then
+	if [ "$VERBOSE" == "true" ]; then
+		echo "Building $APP_NAME"
+	fi
+	build "$RECIPE"
+fi
