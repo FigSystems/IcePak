@@ -125,4 +125,4 @@ bwrap $(bwrap_bind_mount_root) \
 	$(bwrap_forward_enviroment) \
 	--setenv LD_LIBRARY_PATH "$L_LIBRARY_PATH" \
 	$(get_config_option additional_bwrap_options) \
-	-- "$entrypoint" "$@"
+	-- $entrypoint "$@"
