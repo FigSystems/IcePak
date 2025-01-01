@@ -17,3 +17,119 @@ export BRIGHT_BLUE="$(tput setaf 12)"
 export BRIGHT_MAGENTA="$(tput setaf 13)"
 export BRIGHT_CYAN="$(tput setaf 14)"
 export BRIGHT_WHITE="$(tput setaf 15)"
+
+set -eo pipefail
+
+POSITONAL_ARGS=()
+VERBOSE=false
+
+while [[ $# -gt 0 ]]; do
+	case $1 in
+		-h|--help)
+			echo "Usage: icepak <command> [OPTIONS]"
+			echo ""
+			echo "Commands:"
+			echo "  build         Build the application"
+			echo "Options:"
+			echo "  -h, --help     Print this help message and exit"
+			echo "  -v, --verbose  Print verbose output"
+			exit 0
+			;;
+		-v|--verbose)
+			VERBOSE=true
+			shift
+			;;
+		*)
+			POSITONAL_ARGS+=("$1")
+			shift
+			;;
+	esac
+done
+
+set -- "${POSITONAL_ARGS[@]}"
+
+COMMAND=$1
+shift
+
+if [ -z "$COMMAND" ]; then
+	echo "No command specified"
+	exit 1
+fi
+
+function verify_recipe() {
+	if [ $(yq 'has("App")' "$1") != "true" ]; then
+		echo "Invalid recipe: $1"
+		echo "Missing App section"
+		exit 1
+	fi
+
+	if [ $(yq 'has("Recipe")' "$1") != "true" ]; then
+		echo "Invalid recipe: $1"
+		echo "Missing Recipe section"
+		exit 1
+	fi
+
+	if [ $(yq '.App | has("Name")' "$1") != "true" ]; then
+		echo "Invalid recipe: $1"
+		echo "Missing App.Name"
+		exit 1
+	fi
+
+	if [ $(yq 'has("Config")' "$1") != "true" ]; then
+		echo "Invalid recipe: $1"
+		echo "Missing Config section"
+		exit 1
+	fi
+
+	if [ $(yq '.App | has("OutputDirectory")' "$1") != "true" ]; then
+		echo "Invalid recipe: $1"
+		echo "Missing App.OutputDirectory"
+		exit 1
+	fi
+
+	if [ ! $(yq '.Config.[] | has("entrypoint")' | grep -q "true") ]; then
+
+		echo	"${RED}Error: Entrypoint not set!"
+		echo
+		echo 	"${ORANGE}Please add the entrypoint to the config using:"
+		echo
+		echo	"${GREEN}+ Config:
++   - entrypoint: /path/to/entrypoint${RESET}"
+		exit 1
+}
+
+function init() {
+	if [ -z "$1" ]; then
+		if [ -f "ipak.yaml" ]; then
+			RECIPE="ipak.yaml"
+		else
+			echo "No recipe specified"
+			exit 1
+		fi
+	else
+		RECIPE="$1"
+		if [ ! -f "$RECIPE" ]; then
+			echo "Recipe not found: $RECIPE"
+			exit 1
+		fi
+	fi
+
+	RECIPE="$(readlink -f "$RECIPE")"
+
+	if [ -z "$(which yq)" ]; then
+		echo "yq is not installed"
+		echo "Please install yq: https://github.com/mikefarah/yq"
+		exit 1
+	fi
+
+	verify_recipe "$RECIPE"
+
+	APP_NAME=$(yq '.App.Name' "$RECIPE")
+	OUTPUT_DIRECTORY=$(yq '.App.OutputDirectory' "$RECIPE")
+
+	if [ "$VERBOSE" == "true" ]; then
+		echo "Recipe: $RECIPE"
+		echo "App.Name: $APP_NAME"
+		echo "App.OutputDirectory: $OUTPUT_DIRECTORY"
+	fi
+}
