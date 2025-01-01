@@ -53,7 +53,7 @@ function bwrap_bind_mount_root() {
 	local ARGS
 	ARGS=""
 	for d in /*; do
-		if [ "$d" == "/lib" ] || [ "$d" == "/lib64" ]; then
+		if ([ "$d" == "/lib" ] || [ "$d" == "/lib64" ]) && [ "$ALLOW_HOST_LIBRARIES" != "true" ]; then
 			continue
 		fi
 		if [ -d "$SELF_DIR/$d" ] || [ -f "$SELF_DIR/$d" ]; then
@@ -61,7 +61,7 @@ function bwrap_bind_mount_root() {
 		fi
 		if [ "$d" == "/usr" ]; then
 			for d2 in /usr/*; do
-				if [ "$d2" == "/usr/lib" ] || [ "$d2" == "/usr/lib64" ] || ([ -d "$SELF_DIR/usr.local/" ] && [ "$d2" == "/usr/local" ]); then
+				if ([ "$d2" == "/usr/lib" ] || [ "$d2" == "/usr/lib64" ] && [ "$ALLOW_HOST_LIBRARIES" != "true" ]) || ([ -d "$SELF_DIR/usr.local/" ] && [ "$d2" == "/usr/local" ]); then
 					continue
 				fi
 				ARGS="$ARGS --dev-bind $d2 $d2"
@@ -100,6 +100,13 @@ function bwrap_forward_enviroment() {
 	done
 }
 
+L_LIBRARY_PATH="/lib"
+
+if $(config_option_exists allow_host_libraries) && (! $(get_config_option disable_host_libraries)); then
+	ALLOW_HOST_LIBRARIES="true"
+	L_LIBRARY_PATH="$L_LIBRARY_PATH:/usr/lib:/lib64/:/usr/lib64:/usr/local/lib:/usr/local/lib64"
+fi
+
 config_option_exists entrypoint || exit $(non_existent_config_option_error entrypoint)
 
 entrypoint="$(get_config_option entrypoint)"
@@ -107,6 +114,6 @@ entrypoint="$(get_config_option entrypoint)"
 bwrap $(bwrap_bind_mount_root) \
 	$(bwrap_bind_app) \
 	$(bwrap_forward_enviroment) \
-	--setenv LD_LIBRARY_PATH "/lib" \
+	--setenv LD_LIBRARY_PATH "$L_LIBRARY_PATH" \
 	$(get_config_option additional_bwrap_options) \
 	-- "$entrypoint" "$@"
