@@ -64,6 +64,15 @@ function bwrap_bind_mount_root() {
 				if ([ "$d2" == "/usr/lib" ] || [ "$d2" == "/usr/lib64" ] && [ "$ALLOW_HOST_LIBRARIES" != "true" ]) || ([ -d "$SELF_DIR/usr.local/" ] && [ "$d2" == "/usr/local" ]); then
 					continue
 				fi
+				if [ "$d2" == "/usr/local/" ]; then
+					for d3 in /usr/local/*; do
+						if [ "$d3" == "/usr/local/lib" ] || [ "$d3" == "/usr/local/lib64" ] && [ "$ALLOW_HOST_LIBRARIES" != "true" ]; then
+							continue
+						fi
+						ARGS="$ARGS --dev-bind $d3 $d3"
+					done
+					continue
+				fi
 				ARGS="$ARGS --dev-bind $d2 $d2"
 			done
 			continue
