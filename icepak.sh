@@ -97,19 +97,10 @@ function verify_recipe() {
 		exit 1
 	fi
 
-	CONFIG_INDICES=$(get_config_indices "$RECIPE")
-	ENTRYPOINT_SET=false
-
-	for CONFIG_INDEX in $CONFIG_INDICES; do
-		CONFIG_NAME=$(yq ".Config.$CONFIG_INDEX.[] | key" "$RECIPE")
-		CONFIG_VALUE=$(yq ".Config.$CONFIG_INDEX.$CONFIG_NAME" "$RECIPE")
-
-		if [ "$CONFIG_NAME" == "entrypoint" ]; then
-			ENTRYPOINT_SET=true
-		fi
-	done
-
-	if [ $ENTRYPOINT_SET == "false" ]; then
+	if $(yq '.Config.[] | has("entrypoint")' "$1" | grep -q "true"); then
+		# All good!
+		echo -n ""
+	else
 		config_error \
 			"Entrypoint not set!" \
 			"Please add the entrypoint to the config using:" \
@@ -252,7 +243,6 @@ function build() {
 		cd "$build_dir"
 	done
 
-	ln -sfT "/lib" "$build_dir/AppDir/lib64"
 
 	CONFIG_INDICES=$(get_config_indices "$RECIPE")
 	mkdir -p "$build_dir/AppDir/.config"
