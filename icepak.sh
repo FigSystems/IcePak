@@ -18,6 +18,8 @@ export BRIGHT_MAGENTA="$(tput setaf 13)"
 export BRIGHT_CYAN="$(tput setaf 14)"
 export BRIGHT_WHITE="$(tput setaf 15)"
 
+
+
 set -eo pipefail
 
 POSITONAL_ARGS=()
@@ -32,7 +34,6 @@ while [[ $# -gt 0 ]]; do
 			echo "  build         Build the application"
 			echo "Options:"
 			echo "  -h, --help     Print this help message and exit"
-			echo "  -v, --verbose  Print verbose output"
 			exit 0
 			;;
 		-v|--verbose)
@@ -55,6 +56,15 @@ if [ -z "$COMMAND" ]; then
 	echo "No command specified"
 	exit 1
 fi
+
+function config_error() {
+	echo "${RED}Error: $1${RESET}"
+	echo
+	echo "${YELLOW}$2${RESET}"
+	echo
+	echo "${GREEN}$3${RESET}"
+}
+
 
 function verify_recipe() {
 	if [ $(yq 'has("App")' "$1") != "true" ]; then
@@ -87,15 +97,26 @@ function verify_recipe() {
 		exit 1
 	fi
 
-	if [ ! $(yq '.Config.[] | has("entrypoint")' | grep -q "true") ]; then
+	CONFIG_INDICES=$(get_config_indices "$RECIPE")
+	ENTRYPOINT_SET=false
 
-		echo	"${RED}Error: Entrypoint not set!"
-		echo
-		echo 	"${ORANGE}Please add the entrypoint to the config using:"
-		echo
-		echo	"${GREEN}+ Config:
-+   - entrypoint: /path/to/entrypoint${RESET}"
+	for CONFIG_INDEX in $CONFIG_INDICES; do
+		CONFIG_NAME=$(yq ".Config.$CONFIG_INDEX.[] | key" "$RECIPE")
+		CONFIG_VALUE=$(yq ".Config.$CONFIG_INDEX.$CONFIG_NAME" "$RECIPE")
+
+		if [ "$CONFIG_NAME" == "entrypoint" ]; then
+			ENTRYPOINT_SET=true
+		fi
+	done
+
+	if [ $ENTRYPOINT_SET == "false" ]; then
+		config_error \
+			"Entrypoint not set!" \
+			"Please add the entrypoint to the config using:" \
+			"+ Config:
++   - entrypoint: /path/to/entrypoint"
 		exit 1
+	fi
 }
 
 function init() {
@@ -126,36 +147,137 @@ function init() {
 
 	APP_NAME=$(yq '.App.Name' "$RECIPE")
 	OUTPUT_DIRECTORY=$(yq '.App.OutputDirectory' "$RECIPE")
-	BUILD_TYPE="$(yq '.Type.Type' "$RECIPE")"
 
 	if [ "$VERBOSE" == "true" ]; then
 		echo "Recipe: $RECIPE"
 		echo "App.Name: $APP_NAME"
 		echo "App.OutputDirectory: $OUTPUT_DIRECTORY"
-		echo "Type: $BUILD_TYPE"
 	fi
 }
 
-init $1
+function get_recipe_step_indices() {
+	STEP_INDICES=$(yq '.Recipe.[] | key' "$1" | tr '\n' ' ')
+
+	echo "$STEP_INDICES"
+}
+
+function get_config_indices() {
+	CONFIG_INDICES=$(yq '.Config.[] | key' "$1" | tr '\n' ' ')
+
+	echo "$CONFIG_INDICES"
+}
+
+function get_libraries() {
+	local LIB
+	LIB=""
+	LIBS=""
+	for i in "$@"; do
+		LIB2="$(ldd "$i" | cut -d " " -f 3 | tr '\n' ' ' | awk '{$1=$1};1')"
+		# echo "$LIB" >&2
+
+		for lib in $LIB2; do
+			if [ "$lib" == "not" ]; then
+				continue # not found
+			fi
+			if [ ! -f "$lib" ]; then
+				echo "${YELLOW}Warning: Library not found: $lib${RESET}!" >&2
+				continue # not found
+			fi
+			LIBS="$LIBS $lib"
+		done
+	done
+
+	LIBS=$( set -f; printf "%s\n" $LIBS | sort -u | paste -sd" " )
+
+	echo "$LIBS"
+}
 
 function build() {
-	build_dir=$(mktemp -d)
-	ln -sfT "$(readlink -f "$OUTPUT_DIRECTORY")" "$build_dir/AppDir"
+	echo "Building $APP_NAME"
 
-	if [ "${BUILD_TYPE:0:3}" == "tar" ]; then
-		TAR_SUBTYPE="${BUILD_TYPE:3}"
+	if [ -d "$OUTPUT_DIRECTORY" ]; then
+		rm -rf "$OUTPUT_DIRECTORY"
+	fi
 
-		case $TAR_SUBTYPE in
-			.gz)
-				tar xf "$RECIPE" -C "$build_dir"
+	mkdir -p "$OUTPUT_DIRECTORY"
 
+	build_dir="$(mktemp -d)"
+	ln -sfT "$(readlink -f $OUTPUT_DIRECTORY)" "$build_dir/AppDir"
+
+	cd "$build_dir"
+	previous_dir="$(pwd)"
+
+	STEP_INDICES=$(get_recipe_step_indices "$RECIPE")
+
+	for STEP_INDEX in $STEP_INDICES; do
+		if [ "$VERBOSE" == "true" ]; then
+			echo "Step: $STEP_INDEX"
+		fi
+
+		STEP_NAME=$(yq ".Recipe.$STEP_INDEX.[] | key" "$RECIPE")
+		echo "===== ${BRIGHT_GREEN}$STEP_NAME${RESET} ======"
+
+		TYPE="standard"
+		STEP=$(yq ".Recipe.$STEP_INDEX" "$RECIPE")
+
+		if $(yq ".Recipe.$STEP_INDEX.[] | has(\"type\")" "$RECIPE" | grep -q true); then
+			TYPE=$(yq ".Recipe.$STEP_INDEX.[].type" "$RECIPE")
+		fi
+
+		if $(yq ".Recipe.$STEP_INDEX.[] | has(\"workdir\")" "$RECIPE" | grep -q true); then
+			WORKDIR=$(yq ".Recipe.$STEP_INDEX.[].workdir" "$RECIPE")
+			if [ ! -d "$WORKDIR" ]; then
+				mkdir -p "$WORKDIR"
+			fi
+			cd "$WORKDIR"
+		fi
+
+		if [ $TYPE == "libraries" ] && $(yq ".Recipe.$STEP_INDEX.[] | has(\"files\")" "$RECIPE" | grep -q true); then
+			FILES=$(yq ".Recipe.$STEP_INDEX.[].files" "$RECIPE")
+			mkdir -p "$build_dir/AppDir/lib/"
+			cp --no-clobber $(get_libraries $FILES) "$build_dir/AppDir/lib/"
+		fi
+
+		if $(yq ".Recipe.$STEP_INDEX[] | has(\"script\")" "$RECIPE" | grep -q true); then
+			SCRIPT=$(yq ".Recipe.$STEP_INDEX.[].script" "$RECIPE")
+			if [ "$VERBOSE" == "true" ]; then
+				echo "Directory: $(pwd)"
+				echo "--------------"
+				echo "$SCRIPT"
+				echo "--------------"
+			fi
+			eval "$SCRIPT"
+		fi
+
+		cd "$build_dir"
+	done
+
+	ln -sfT "/lib" "$build_dir/AppDir/lib64"
+
+	CONFIG_INDICES=$(get_config_indices "$RECIPE")
+	mkdir -p "$build_dir/AppDir/.config"
+
+	for CONFIG_INDEX in $CONFIG_INDICES; do
+		if [ "$VERBOSE" == "true" ]; then
+			echo "Config: $CONFIG_INDEX"
+		fi
+
+		CONFIG_NAME=$(yq ".Config.$CONFIG_INDEX.[] | key" "$RECIPE")
+		CONFIG_VALUE=$(yq ".Config.$CONFIG_INDEX.$CONFIG_NAME" "$RECIPE")
+
+		if [ "$VERBOSE" == "true" ]; then
+			echo "$CONFIG_NAME = $CONFIG_VALUE"
+		fi
+
+		echo "$CONFIG_VALUE" > "$build_dir/AppDir/.config/$CONFIG_NAME"
+	done
+
+	rm "$build_dir/AppDir"
+	rm -rf "$build_dir"
 }
 
-
+init "$1"
 
 if [ "$COMMAND" == "build" ]; then
-	if [ "$VERBOSE" == "true" ]; then
-		echo "Building $APP_NAME"
-	fi
-	build "$RECIPE"
+	build
 fi
