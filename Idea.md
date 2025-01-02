@@ -18,16 +18,20 @@ App:
   Name: Example
   OutputDirectory: build/example
 Recipe:
-  - FetchSources:
-      script: git clone --depth=1 https://github.com/example/example.git
+  - CopyFiles:
+	script: |
+      cp $SRC/src src
+      # There are multiple names for the source dir.
+      cp $REPO_ROOT/example example
+      # You can also just copy it all :)
+      cp $SRC/* ./
   - Build:
-      workdir: example/build
-      script: |
-        ../configure --INSTALL_PREFIX="/usr"
-        make install INSTALL_DIR="../../AppDir/"
+    script: |
+	  ./configure --prefix=/App
+	  make -j $(nproc) install INSTALL_DIR="AppDir/"
   - Libraries:
-      type: libraries
-      files: /usr/bin/example /usr/bin/example-resource
+    type: libraries
+	files: /usr/bin/example /usr/bin/other-executable
 
 Config:
   - entrypoint: /usr/bin/example
@@ -51,12 +55,13 @@ IcePak should make it very easy for a team of developers to have an **IcePak** o
 In an `AppDir` a config directory will be present under the name `.config/`. Files existing under here will be used like variables to hold config options. The list is as follows:
  - `entrypoint` Used to determine the entrypoint. Must be relative to `/`
 
+
+The build script itself is run inside the build directory, usually inside `/tmp`. This may change in the future as I am not sure whether it is a better idea to build inside the repo root and make the application install to `$build_dir` or whether to build inside the build dir and make the project copy source files from `$src_dir`. Either is fine, but it was chosen to do it the way described above for now.
+
 ## Runtime
 
 Inside each application's AppDir, any files and directories in that directory will be directely bind-mounted to `/$NAME` (e.g. `AppDir/usr` would be bind mounted to `/usr`). Most applications will opt to have their binaries installed under the `/usr` prefix, but theoretically you could put your applications files under `/App` too.
 
 The config option `entrypoint` determines the file to be started upon application launch. In essence, the IcePak's starting point. If this config option is not set or the file is not found, then the runtime will use zenity to display an error message but if zenity is not installed then it will print an error to the terminal.
 
-The runtime should just bubblewrap the entrypoint, with every directory in root bind-mounted, and then every directory in the app-root will be bind-mounted with the applications folders overiding the system ones. There may be exceptions to this (e.g. it may not be a good idea to bind-mount `/lib` from the system as this may result in non-reproducable builds. etc.) A good implementation should avoid situations like this. Basically no libraries should actually be used from the base system unless if it is ABSOLUTELY GARANTEED to be in your target distros.
-
-Another good option is to install the application to `usr.local`. When the runtime detects this directory, it will automatically bind it to `/usr/local`. Most applications should work with this, and this also gives the benefit of the `/usr` folders still being accesable from inside the container. (Special functionality in the runtime)
+The runtime should just bubblewrap the entrypoint, with every directory in root bind-mounted, and then every directory in the app-root will be bind-mounted with the applications folders overiding the system ones. No libraries should be used from the base system unless if it is ABSOLUTELY GARANTEED to be in your target distros.
