@@ -65,3 +65,7 @@ Inside each application's AppDir, any files and directories in that directory wi
 The config option `entrypoint` determines the file to be started upon application launch. In essence, the IcePak's starting point. If this config option is not set or the file is not found, then the runtime will use zenity to display an error message but if zenity is not installed then it will print an error to the terminal.
 
 The runtime should just bubblewrap the entrypoint, with every directory in root bind-mounted, and then every directory in the app-root will be bind-mounted with the applications folders overiding the system ones. No libraries should be used from the base system unless if it is ABSOLUTELY GARANTEED to be in your target distros.
+
+## Daemon
+
+An area which is under active consideration is having a dedicated daemon to intagrate compressed icepaks into the system and allow regular launching. This daemon would be run as root to take advantage of the kernel's squashfs mounting features. (squashfuse is kinda trash for anything serious)
