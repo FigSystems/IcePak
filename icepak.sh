@@ -18,6 +18,9 @@ export BRIGHT_MAGENTA="$(tput setaf 13)"
 export BRIGHT_CYAN="$(tput setaf 14)"
 export BRIGHT_WHITE="$(tput setaf 15)"
 
+SELF=$(readlink -f "$0")
+SELF_DIR=$(dirname "$SELF")
+
 
 
 set -eo pipefail
@@ -276,6 +279,9 @@ function build() {
 
 		echo "$CONFIG_VALUE" > "$build_dir/AppDir/.config/$CONFIG_NAME"
 	done
+
+	cp "$SELF_DIR/runtime.sh" "$build_dir/AppDir/runtime.sh"
+	chmod +x "$build_dir/AppDir/runtime.sh"
 
 	rm "$build_dir/AppDir"
 	rm -rf "$build_dir"
