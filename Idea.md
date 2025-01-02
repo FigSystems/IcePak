@@ -17,6 +17,8 @@ An example of the intended format is as follows. This is just a rough idea of th
 App:
   Name: Example
   OutputDirectory: build/example
+  Icon: /path/to/icon.(png|svg|jpg|jpeg)
+  DesktopFile: /path/to/app.desktop
 Recipe:
   - CopyFiles:
 	script: |
