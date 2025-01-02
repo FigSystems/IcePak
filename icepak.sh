@@ -280,8 +280,20 @@ function build() {
 		echo "$CONFIG_VALUE" > "$build_dir/AppDir/.config/$CONFIG_NAME"
 	done
 
-	cp "$SELF_DIR/runtime.sh" "$build_dir/AppDir/runtime.sh"
-	chmod +x "$build_dir/AppDir/runtime.sh"
+	cp "$SELF_DIR/runtime.sh" "$build_dir/AppDir/AppRun"
+	chmod +x "$build_dir/AppDir/AppRun"
+
+	# Check if yml file has a .Final.script (Untested)
+	if $(yq ".Final.[] | has(\"script\")" "$RECIPE" | grep -q true); then
+		SCRIPT=$(yq ".Final.script" "$RECIPE")
+		if [ "$VERBOSE" == "true" ]; then
+			echo "Directory: $(pwd)"
+			echo "--------------"
+			echo "$SCRIPT"
+			echo "--------------"
+		fi
+		eval "$SCRIPT"
+	fi
 
 	rm "$build_dir/AppDir"
 	rm -rf "$build_dir"
