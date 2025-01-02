@@ -23,7 +23,7 @@ SELF_DIR=$(dirname "$SELF")
 
 
 
-set -eo pipefail
+# set -eo pipefail
 
 POSITONAL_ARGS=()
 VERBOSE=false
