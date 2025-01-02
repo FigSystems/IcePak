@@ -68,4 +68,6 @@ The runtime should just bubblewrap the entrypoint, with every directory in root 
 
 ## Daemon
 
-An area which is under active consideration is having a dedicated daemon to intagrate compressed icepaks into the system and allow regular launching. This daemon would be run as root to take advantage of the kernel's squashfs mounting features. (squashfuse is kinda trash for anything serious)
+An area which is under active consideration is having a dedicated daemon to integrate compressed icepaks into the system and allow regular launching. This daemon would be run as root to take advantage of the kernel's squashfs mounting features. (squashfuse is kinda trash for anything serious)
+
+A dedicated daemon does not invalidate the principal of *one file = one app*.
