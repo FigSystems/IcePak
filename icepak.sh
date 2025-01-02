@@ -303,4 +303,7 @@ init "$1"
 
 if [ "$COMMAND" == "build" ]; then
 	build
+else
+	echo "Unknown command: $COMMAND" >&2
+	exit 1
 fi
