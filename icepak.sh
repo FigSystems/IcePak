@@ -114,14 +114,11 @@ function init() {
 	if [ -z "$1" ]; then
 		if [ -f "icepak.yml" ]; then
 			RECIPE="icepak.yml"
-		fi
-		if [ -f "ipak.yaml" ]; then
+		elif [ -f "ipak.yaml" ]; then
 			RECIPE="ipak.yaml"
-		fi
-		if [ -f "ipak.yml" ]; then
+		elif [ -f "ipak.yml" ]; then
 			RECIPE="ipak.yml"
-		fi
-		if [ -f "icepak.yaml" ]; then
+		elif [ -f "icepak.yaml" ]; then
 			RECIPE="icepak.yaml"
 		else
 			echo "No recipe specified"

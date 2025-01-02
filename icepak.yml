@@ -1,0 +1,12 @@
+App:
+  Name: IcePak
+  OutputDirectory: build/icepak
+
+Recipe:
+  - Copy:
+      script: |
+        mkdir -p AppDir/App
+        cp icepak.sh runtime.sh AppDir/App/
+
+Config:
+  - entrypoint: /App/icepak.sh
