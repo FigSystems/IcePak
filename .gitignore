@@ -1,9 +1,1 @@
-/target
 /Tests
-/base_img
-squashfs-root
-self/self.app
-__ipak_cache__
-/Apps/Out
-self.app
-build/
