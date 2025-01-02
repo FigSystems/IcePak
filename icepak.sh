@@ -190,6 +190,15 @@ function get_libraries() {
 }
 
 function build() {
+	REPO="$(pwd)"
+	PROJECT_ROOT="$REPO"
+	PROJECT="$REPO"
+	REPO_ROOT="$REPO"
+	REPO_DIR="$REPO"
+	PROJECT_DIR="$REPO"
+	SRC_DIR="$REPO"
+	SRC="$REPO"
+
 	echo "Building $APP_NAME"
 
 	if [ -d "$OUTPUT_DIRECTORY" ]; then
