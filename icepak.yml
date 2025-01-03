@@ -7,6 +7,7 @@ Recipe:
       script: |
         mkdir -p AppDir/App
         cp $SRC/icepak.sh $SRC/runtime.sh AppDir/App/
+        cp $SRC/squashfs-mount AppDir/App/
 
 Config:
   - entrypoint: /App/icepak.sh
