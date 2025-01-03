@@ -100,30 +100,6 @@ function verify_recipe() {
 		exit 1
 	fi
 
-	if [ $(yq '.App | has("Icon")' "$1") != "true" ]; then
-		echo "Invalid recipe: $1"
-		echo "Missing App.Icon"
-		exit 1
-	fi
-
-	if [ $(yq '.App | has("DesktopFile")' "$1") != "true" ]; then
-		echo "Invalid recipe: $1"
-		echo "Missing App.DesktopFile"
-		exit 1
-	fi
-
-	if [ ! -f "$(yq '.App.Icon' "$1")" ]; then
-		echo "Invalid recipe: $1"
-		echo "Icon file not found: $(yq '.App.Icon' "$1")"
-		exit 1
-	fi
-
-	if [ ! -f "$(yq '.App.DesktopFile' "$1")" ]; then
-		echo "Invalid recipe: $1"
-		echo "Desktop file not found: $(yq '.App.DesktopFile' "$1")"
-		exit 1
-	fi
-
 	if $(yq '.Config.[] | has("entrypoint")' "$1" | grep -q "true"); then
 		# All good!
 		echo -n ""
@@ -243,11 +219,6 @@ function build() {
 
 	cd "$build_dir"
 	previous_dir="$(pwd)"
-
-	cp -f "$ICON" "$build_dir/AppDir/.AppIcon"
-	cp -f "$DESKTOP_FILE" "$build_dir/AppDir/.App.desktop"
-	echo >> "$build_dir/AppDir/.App.desktop"
-	echo "Icon=.AppIcon" >> "$build_dir/AppDir/.App.desktop"
 
 	STEP_INDICES=$(get_recipe_step_indices "$RECIPE")
 
