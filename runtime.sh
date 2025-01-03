@@ -3,8 +3,6 @@
 SELF_PATH=$( readlink -f "$0" )
 APPDIR=$( dirname "$SELF_PATH" )
 
-L_LIBRARY_PATH=""
-
 function error() {
 	if which zenity > /dev/null; then
 		zenity --error --text "$1"
@@ -56,7 +54,7 @@ function environment() {
 			printf -- '--setenv '%s' '%s'\n' "$n" "$v"
 		fi
 	done < <(env -0)
-	
+
 	L_LIBRARY_PATH="$(get_config_option library_path || echo "$LD_LIBRARY_PATH")"
 	echo "--setenv LD_LIBRARY_PATH '$L_LIBRARY_PATH'"
 }
