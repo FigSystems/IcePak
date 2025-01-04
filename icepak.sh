@@ -94,9 +94,9 @@ function verify_recipe() {
 		exit 1
 	fi
 
-	if [ $(yq '.App | has("OutputDirectory")' "$1") != "true" ]; then
+	if [ $(yq '.App | has("OutputFile")' "$1") != "true" ]; then
 		echo "Invalid recipe: $1"
-		echo "Missing App.OutputDirectory"
+		echo "Missing App.OutputFile"
 		exit 1
 	fi
 
@@ -146,14 +146,14 @@ function init() {
 	verify_recipe "$RECIPE"
 
 	APP_NAME=$(yq '.App.Name' "$RECIPE")
-	OUTPUT_DIRECTORY=$(yq '.App.OutputDirectory' "$RECIPE")
+	OUTPUT_FILE=$(yq '.App.OutputFile' "$RECIPE")
 	ICON=$(readlink -f $(yq '.App.Icon' "$RECIPE"))
 	DESKTOP_FILE=$(readlink -f $(yq '.App.DesktopFile' "$RECIPE"))
 
 	if [ "$VERBOSE" == "true" ]; then
 		echo "Recipe: $RECIPE"
 		echo "App.Name: $APP_NAME"
-		echo "App.OutputDirectory: $OUTPUT_DIRECTORY"
+		echo "App.OutputFile: $OUTPUT_FILE"
 		echo "App.Icon: $ICON"
 		echo "App.DesktopFile: $DESKTOP_FILE"
 	fi
@@ -208,14 +208,16 @@ function build() {
 
 	echo "Building $APP_NAME"
 
-	if [ -d "$OUTPUT_DIRECTORY" ]; then
-		rm -rf "$OUTPUT_DIRECTORY"
+	if [ ! -f "$OUTPUT_FILE" ]; then
+		touch "$OUTPUT_FILE"
 	fi
 
-	mkdir -p "$OUTPUT_DIRECTORY"
+	OUTPUT_FILE="$(readlink -f "$OUTPUT_FILE")"
 
 	build_dir="$(mktemp -d)"
-	ln -sfT "$(readlink -f $OUTPUT_DIRECTORY)" "$build_dir/AppDir"
+	AppDir="$(mktemp -d)"
+	# ln -sfT "$(readlink -f $OUTPUT_DIRECTORY)" "$build_dir/AppDir"
+	ln -sfT "$AppDir" "$build_dir/AppDir"
 
 	cd "$build_dir"
 	previous_dir="$(pwd)"
@@ -299,6 +301,17 @@ function build() {
 		eval "$SCRIPT"
 	fi
 
+	tmp_sqsh=$(mktemp)
+
+	ls "$build_dir/AppDir"
+
+	cat "$SELF_DIR/onefile-runtime.sh" > "$OUTPUT_FILE"
+	mksquashfs "$build_dir/AppDir" "$tmp_sqsh" -noappend
+	cat "$tmp_sqsh" >> "$OUTPUT_FILE"
+	chmod +x "$OUTPUT_FILE"
+
+	rm -Rf "$AppDir"
+	rm "$tmp_sqsh"
 	rm "$build_dir/AppDir"
 	rm -rf "$build_dir"
 }
