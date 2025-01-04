@@ -1,16 +1,10 @@
 #!/bin/bash
 
-SQUASHFS_OFFSET="__SQUASHFS_OFFSET__" # Patched at IcePak creation time
+SQUASHFS_OFFSET=""
 
-if [ "$SQUASHFS_OFFSET" == "__SQUASHFS_OFFSET__" ]; then
-	echo "SQUASHFS_OFFSET not set"
-	echo "This is normally patched by the icepak creater script"
-	echo "You can do it manually, by replacing __SQUASHFS_OFFSET__ with the value:"
-	echo "(number of bytes in this file) - (length of string '__SQUASHFS_OFFSET__' - length of string \$(length of the string with the number of bytes in this file))"
-	echo
-	echo "We do recommend using the icepak creater script though"
-	exit 1
-fi
+SQUASHFS_OFFSET=$(grep -n -x "__RUNTIME_END__" $0 -m 1 | cut -d: -f1)
+SQUASHFS_OFFSET=$(head -n $SQUASHFS_OFFSET $0 | wc -c)
+SQUASHFS_OFFSET=$((SQUASHFS_OFFSET + 1))
 
 function error() {
 	if which zenity > /dev/null; then
@@ -36,3 +30,4 @@ mkdir -p /tmp/self
 SQUASHFS_MOUNT_OFFSET="${SQUASHFS_OFFSET}" squashfs-mount "$1":/tmp/self -- bash <<EOF
 /tmp/self/runtime.sh "$@"
 EOF
+__RUNTIME_END__
