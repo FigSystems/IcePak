@@ -19,7 +19,7 @@ function exit_error() {
 	exit $1
 }
 
-if which dwarfs > /dev/null; then
+if false; then
 	echo "dwarfs found!"
 else
 	if which zenity > /dev/null; then
@@ -27,7 +27,7 @@ else
 		zenity --question --text "dwarfs not found!\nInstall? (Doesn't require root) If you aren't sure, click 'Yes'."
 		if [ "$?" == "0" ]; then
 			BROWSER_URL=$(curl -s https://api.github.com/repos/mhx/dwarfs/releases/latest | grep -E -o "\"https://github.com/mhx/dwarfs/releases/download/v.*\..*\..*/dwarfs-universal-.*\..*\..*-Linux-$(uname -m)-clang\"" | tr -d "\"")
-			(wget -O dwarfs-universal $BROWSER_URL -q; echo "# Done!"; echo 100) | zenity --progress --title="Downloading dwarfs" --auto-close --pulsate
+			(echo "Downloading dwarfs..."; wget -O dwarfs-universal $BROWSER_URL -q || zenity --error --text 'Failed to download dwarfs. Please check your internet connection and try again.' && (echo ; echo "# Done!"; echo 100)) | zenity --progress --title="Downloading dwarfs" --auto-close --pulsate
 			chmod +x dwarfs-universal
 			mkdir -p ~/.local/bin
 			mv dwarfs-universal ~/.local/bin/dwarfs-universal
