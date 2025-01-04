@@ -19,10 +19,12 @@ function exit_error() {
 	exit $1
 }
 
-if false; then
+if which dwarfs > /dev/null; then
 	echo "dwarfs found!"
 else
-	if which zenity > /dev/null; then
+	if [ -f "~/.local/bin/dwarfs" ]; then
+		DWARFS_PREFIX="~/.local/bin/"
+	elif which zenity > /dev/null; then
 		# We have zenity!
 		zenity --question --text "dwarfs not found!\nInstall? (Doesn't require root) If you aren't sure, click 'Yes'."
 		if [ "$?" == "0" ]; then
@@ -35,6 +37,14 @@ else
 			ln -sfT ~/.local/bin/dwarfs-universal ~/.local/bin/mkdwarfs
 			ln -sfT ~/.local/bin/dwarfs-universal ~/.local/bin/dwarfsck
 			zenity --info --text "dwarfs installed! Click 'OK' to continue."
+
+			if which dwarfs > /dev/null; then
+				echo "dwarfs found!"
+			else
+				# So, we installed it and it still isn't found.
+				# ~/.local/bin must not be in their path.
+				DWARFS_PREFIX="~/.local/bin/"
+			fi
 		else
 			exit 1
 		fi
@@ -48,7 +58,7 @@ fi
 
 unshare -Urm -- bash -c " \
 mkdir -p /tmp/self ; \
-dwarfs -o offset=\"$SQUASHFS_OFFSET\" $0 /tmp/self ; \
+$DWARFS_PREFIX/dwarfs -o offset=\"$SQUASHFS_OFFSET\" $0 /tmp/self ; \
 /tmp/self/AppRun "$@" ; \
 umount /tmp/self || ((sleep 1; umount /tmp/self) || (sleep 4; umount /tmp/self || echo \"Failed to unmount dwarfs!\"))"
 exit 0
