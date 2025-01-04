@@ -2,9 +2,9 @@
 
 SQUASHFS_OFFSET=""
 
-SQUASHFS_OFFSET=$(grep -n -x "__RUNTIME_END__" $0 -m 1 | cut -d: -f1)
+SQUASHFS_OFFSET=$(grep -n -x --text "__RUNTIME_END__" $0 -m 1 | cut -d: -f1)
 SQUASHFS_OFFSET=$(head -n $SQUASHFS_OFFSET $0 | wc -c)
-SQUASHFS_OFFSET=$((SQUASHFS_OFFSET + 1))
+# SQUASHFS_OFFSET=$((SQUASHFS_OFFSET + 1))
 
 function error() {
 	if which zenity > /dev/null; then
@@ -27,7 +27,6 @@ else
 fi
 
 mkdir -p /tmp/self
-SQUASHFS_MOUNT_OFFSET="${SQUASHFS_OFFSET}" squashfs-mount "$1":/tmp/self -- bash <<EOF
-/tmp/self/runtime.sh "$@"
-EOF
+SQUASHFS_MOUNT_OFFSET="${SQUASHFS_OFFSET}" squashfs-mount "$0":/tmp/self -- /tmp/self/AppRun "$@"
+exit 0
 __RUNTIME_END__
