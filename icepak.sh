@@ -215,9 +215,9 @@ function build() {
 	OUTPUT_FILE="$(readlink -f "$OUTPUT_FILE")"
 
 	build_dir="$(mktemp -d)"
-	AppDir="$(mktemp -d)"
+	AppDir="$build_dir/AppDir"
 	# ln -sfT "$(readlink -f $OUTPUT_DIRECTORY)" "$build_dir/AppDir"
-	ln -sfT "$AppDir" "$build_dir/AppDir"
+	mkdir -p "$build_dir/AppDir"
 
 	cd "$build_dir"
 	previous_dir="$(pwd)"
@@ -303,7 +303,7 @@ function build() {
 
 	tmp_sqsh=$(mktemp)
 
-	ls "$build_dir/AppDir"
+	ls -a "$build_dir/AppDir"
 
 	cat "$SELF_DIR/onefile-runtime.sh" > "$OUTPUT_FILE"
 	mksquashfs "$build_dir/AppDir" "$tmp_sqsh" -noappend
@@ -312,7 +312,6 @@ function build() {
 
 	rm -Rf "$AppDir"
 	rm "$tmp_sqsh"
-	rm "$build_dir/AppDir"
 	rm -rf "$build_dir"
 }
 
