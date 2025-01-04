@@ -301,17 +301,16 @@ function build() {
 		eval "$SCRIPT"
 	fi
 
-	tmp_sqsh=$(mktemp)
-
-	ls -a "$build_dir/AppDir"
+	tmp_dwfs=$(mktemp)
+	rm $tmp_dwfs
 
 	cat "$SELF_DIR/onefile-runtime.sh" > "$OUTPUT_FILE"
-	mksquashfs "$build_dir/AppDir" "$tmp_sqsh" -noappend
-	cat "$tmp_sqsh" >> "$OUTPUT_FILE"
+	mkdwarfs -i "$build_dir/AppDir" -o "$tmp_dwfs"
+	cat "$tmp_dwfs" >> "$OUTPUT_FILE"
 	chmod +x "$OUTPUT_FILE"
 
 	rm -Rf "$AppDir"
-	rm "$tmp_sqsh"
+	rm "$tmp_dwfs"
 	rm -rf "$build_dir"
 }
 

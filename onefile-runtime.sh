@@ -19,14 +19,17 @@ function exit_error() {
 	exit $1
 }
 
-if which squashfs-mount > /dev/null; then
-	echo "squashfs-mount found!"
+if which dwarfs > /dev/null; then
+	echo "dwarfs found!"
 else
 	# FIXME: Offer to install it
-	exit_error 1 "squashfs-mount not found!"
+	exit_error 1 "dwarfs not found!"
 fi
 
-mkdir -p /tmp/self
-SQUASHFS_MOUNT_OFFSET="${SQUASHFS_OFFSET}" squashfs-mount "$0":/tmp/self -- /tmp/self/AppRun "$@"
+unshare -Urm -- bash -c " \
+mkdir -p /tmp/self ; \
+dwarfs -o offset=\"$SQUASHFS_OFFSET\" $0 /tmp/self ; \
+/tmp/self/AppRun "$@" ; \
+umount /tmp/self || ((sleep 1; umount /tmp/self) || (sleep 4; umount /tmp/self || echo \"Failed to unmount dwarfs!\"))"
 exit 0
 __RUNTIME_END__
