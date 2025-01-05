@@ -1,17 +1,12 @@
 App:
   Name: IcePak
-  OutputFile: build/icepak
+  OutputDirectory: build/icepak
 
 Recipe:
   - Copy:
       script: |
         mkdir -p AppDir/App
-        cp $SRC/icepak.sh $SRC/runtime.sh $SRC/onefile-runtime.sh AppDir/App/
-        wget -O AppDir/App/dwarfs-unviversal https://github.com/mhx/dwarfs/releases/download/v0.10.2/dwarfs-universal-0.10.2-Linux-x86_64-clang -q --show-progress
-        chmod +x AppDir/App/dwarfs-unviversal
-        ln -sfT AppDir/App/dwarfs-unviversal AppDir/App/dwarfs
-        ln -sfT AppDir/App/dwarfs-unviversal AppDir/App/mkdwarfs
-        ln -sfT AppDir/App/dwarfs-unviversal AppDir/App/dwarfsck
+        cp $SRC/icepak.sh $SRC/runtime.sh AppDir/App/
 
 Config:
   - entrypoint: /App/icepak.sh
