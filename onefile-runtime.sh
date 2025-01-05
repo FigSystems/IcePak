@@ -58,7 +58,7 @@ fi
 
 unshare -Urm -- bash -c " \
 mkdir -p /tmp/self ; \
-${DWARFS_PREFIX}dwarfs -o offset=\"$SQUASHFS_OFFSET\" $0 /tmp/self ; \
+${DWARFS_PREFIX}dwarfs -o offset=\"$SQUASHFS_OFFSET\" -o workers=$(nproc) -o readonly /tmp/self ; \
 /tmp/self/AppRun "$@" ; \
 umount /tmp/self || ((sleep 1; umount /tmp/self) || (sleep 4; umount /tmp/self || echo \"Failed to unmount dwarfs!\"))"
 exit 0
