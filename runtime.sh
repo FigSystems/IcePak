@@ -63,4 +63,4 @@ bwrap \
 	$(bind_root) \
 	$(bind_app) \
 	$(environment) \
-	$(get_config_option entrypoint) "$@"
+	$(get_config_option EntryPoint) "$@"

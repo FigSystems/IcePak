@@ -103,8 +103,8 @@ function verify_recipe() {
 		ERROR="true"
 	fi
 
-	if ! $(yq '.Config.[] | has("entrypoint")' "$1" | grep -q "true"); then
-		invalid_recipe_error "Missing Config.entrypoint. Should be e.g. /App/your_app"
+	if ! $(yq '.Config.[] | has("EntryPoint")' "$1" | grep -q "true"); then
+		invalid_recipe_error "Missing Config.EntryPoint. Should be e.g. /App/your_app"
 		ERROR="true"
 	fi
 
