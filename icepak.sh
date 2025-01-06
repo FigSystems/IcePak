@@ -69,46 +69,48 @@ function config_error() {
 }
 
 
+function invalid_recipe_error() {
+	echo "${RED} - $1${RESET}"
+}
+
+
 function verify_recipe() {
+	ERROR="false"
+
+
 	if [ $(yq 'has("App")' "$1") != "true" ]; then
-		echo "Invalid recipe: $1"
-		echo "Missing App section"
-		exit 1
+		invalid_recipe_error "Missing App section"
+		ERROR="true"
 	fi
 
 	if [ $(yq 'has("Recipe")' "$1") != "true" ]; then
-		echo "Invalid recipe: $1"
-		echo "Missing Recipe section"
-		exit 1
+		invalid_recipe_error "Missing Recipe section"
+		ERROR="true"
 	fi
 
 	if [ $(yq '.App | has("Name")' "$1") != "true" ]; then
-		echo "Invalid recipe: $1"
-		echo "Missing App.Name"
-		exit 1
+		invalid_recipe_error "Missing App.Name"
+		ERROR="true"
 	fi
 
 	if [ $(yq 'has("Config")' "$1") != "true" ]; then
-		echo "Invalid recipe: $1"
-		echo "Missing Config section"
-		exit 1
+		invalid_recipe_error "Missing Config section"
+		ERROR="true"
 	fi
 
 	if [ $(yq '.App | has("OutputDirectory")' "$1") != "true" ]; then
-		echo "Invalid recipe: $1"
-		echo "Missing App.OutputDirectory"
-		exit 1
+		invalid_recipe_error "Missing App.OutputDirectory"
+		ERROR="true"
 	fi
 
-	if $(yq '.Config.[] | has("entrypoint")' "$1" | grep -q "true"); then
-		# All good!
-		echo -n ""
-	else
-		config_error \
-			"Entrypoint not set!" \
-			"Please add the entrypoint to the config using:" \
-			"+ Config:
-+   - entrypoint: /path/to/entrypoint"
+	if ! $(yq '.Config.[] | has("entrypoint")' "$1" | grep -q "true"); then
+		invalid_recipe_error "Missing Config.entrypoint. Should be e.g. /App/your_app"
+		ERROR="true"
+	fi
+
+	if [ "$ERROR" == "true" ]; then
+		echo "${YELLOW}Invalid recipe: $1${RESET}"
+		echo "${YELLOW}Please corect the previous errors and try again${RESET}"
 		exit 1
 	fi
 }
