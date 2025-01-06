@@ -108,6 +108,26 @@ function verify_recipe() {
 		ERROR="true"
 	fi
 
+	if ! $(yq '.Config.[] | has("Version")' "$1" | grep -q "true"); then
+		invalid_recipe_error "Missing Config.Version"
+		ERROR="true"
+	fi
+
+	if ! $(yq '.Config.[] | has("Description")' "$1" | grep -q "true"); then
+		invalid_recipe_error "Missing Config.Description"
+		ERROR="true"
+	fi
+
+	if ! $(yq '.Config.[] | has("Developer")' "$1" | grep -q "true"); then
+		invalid_recipe_error "Missing Config.Developer"
+		ERROR="true"
+	fi
+
+	if ! $(yq '.Config.[] | has("Architecture")' "$1" | grep -q "true"); then
+		invalid_recipe_error "Missing Config.Architecture. e.g. x86_64 or arm64"
+		ERROR="true"
+	fi
+
 	if [ "$ERROR" == "true" ]; then
 		echo "${YELLOW}Invalid recipe: $1${RESET}"
 		echo "${YELLOW}Please corect the previous errors and try again${RESET}"
@@ -285,6 +305,8 @@ function build() {
 
 		echo "$CONFIG_VALUE" > "$build_dir/AppDir/.config/$CONFIG_NAME"
 	done
+
+	echo "$APP_NAME" > "$build_dir/AppDir/.config/APP_NAME"
 
 	cp "$SELF_DIR/runtime.sh" "$build_dir/AppDir/AppRun"
 	chmod +x "$build_dir/AppDir/AppRun"
