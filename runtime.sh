@@ -26,7 +26,7 @@ function bind_app() {
 	local ARGS
 	ARGS=""
 
-	for dir in "$APPDIR"/*; do
+	for dir in "$APPDIR"/App; do
 		ARGS="$ARGS --dev-bind $dir $(basename "$dir")"
 	done
 
@@ -56,7 +56,7 @@ function environment() {
 	done < <(env -0)
 
 	L_LIBRARY_PATH="$(get_config_option library_path || echo "$LD_LIBRARY_PATH")"
-	echo "--setenv LD_LIBRARY_PATH '$L_LIBRARY_PATH'"
+	echo "--setenv LD_LIBRARY_PATH '/App/lib/:$L_LIBRARY_PATH'"
 }
 
 bwrap \
