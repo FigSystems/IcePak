@@ -36,7 +36,7 @@ Recipe:
 	files: /usr/bin/example /usr/bin/other-executable
 
 Config:
-  - entrypoint: /usr/bin/example
+  - EntryPoint: /usr/bin/example
 ```
 
 Each of the steps in the `recipe` section will be executed sequentally.
