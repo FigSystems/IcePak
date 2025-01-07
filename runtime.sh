@@ -26,8 +26,11 @@ function bind_app() {
 	local ARGS
 	ARGS=""
 
-	for dir in "$APPDIR"/App; do
-		ARGS="$ARGS --dev-bind $dir $(basename "$dir")"
+	for dir in "$APPDIR"/*; do
+		if [ "$dir" == "$APPDIR/usr" ]; then
+			ARGS="$ARGS --overlay-src $dir --overlay-src $(basename "$dir") --ro-overlay $(basename "$dir")"
+		fi
+		ARGS="$ARGS --ro-bind $dir $(basename "$dir")"
 	done
 
 	echo "$ARGS"
