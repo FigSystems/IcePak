@@ -27,10 +27,7 @@ function bind_app() {
 	ARGS=""
 
 	for dir in "$APPDIR"/*; do
-		if [ "$dir" == "$APPDIR/usr" ]; then
-			ARGS="$ARGS --overlay-src $dir --overlay-src $(basename "$dir") --ro-overlay $(basename "$dir")"
-		fi
-		ARGS="$ARGS --ro-bind $dir $(basename "$dir")"
+		ARGS="$ARGS --dev-bind $dir $(basename "$dir")"
 	done
 
 	echo "$ARGS"
@@ -59,7 +56,7 @@ function environment() {
 	done < <(env -0)
 
 	L_LIBRARY_PATH="$(get_config_option library_path || echo "$LD_LIBRARY_PATH")"
-	echo "--setenv LD_LIBRARY_PATH '/App/lib/:$L_LIBRARY_PATH'"
+	echo "--setenv LD_LIBRARY_PATH '$L_LIBRARY_PATH'"
 }
 
 bwrap \

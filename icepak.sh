@@ -22,6 +22,7 @@ SELF=$(readlink -f "$0")
 SELF_DIR=$(dirname "$SELF")
 
 
+
 # set -eo pipefail
 
 POSITONAL_ARGS=()
@@ -34,8 +35,6 @@ while [[ $# -gt 0 ]]; do
 			echo ""
 			echo "Commands:"
 			echo "  build         Build the application"
-			echo "  build-deb     Convert App.OutputDirectory to a .deb package"
-			echo "  build-rpm     Convert App.OutputDirectory to a .rpm package"
 			echo "Options:"
 			echo "  -h, --help     Print this help message and exit"
 			exit 0
@@ -270,8 +269,8 @@ function build() {
 
 		if [ $TYPE == "libraries" ] && $(yq ".Recipe.$STEP_INDEX.[] | has(\"files\")" "$RECIPE" | grep -q true); then
 			FILES=$(yq ".Recipe.$STEP_INDEX.[].files" "$RECIPE")
-			mkdir -p "$build_dir/AppDir/App/lib/"
-			cp --no-clobber $(get_libraries $FILES) "$build_dir/AppDir/App/lib/"
+			mkdir -p "$build_dir/AppDir/lib/"
+			cp --no-clobber $(get_libraries $FILES) "$build_dir/AppDir/lib/"
 		fi
 
 		if $(yq ".Recipe.$STEP_INDEX[] | has(\"script\")" "$RECIPE" | grep -q true); then
@@ -328,22 +327,10 @@ function build() {
 	rm -rf "$build_dir"
 }
 
-function build_deb() {
-	# TODO
-}
-
-function build_rpm() {
-	# TODO
-}
-
 init "$1"
 
 if [ "$COMMAND" == "build" ]; then
 	build
-elif [ "$COMMAND" == "build-deb" ]; then
-	build_deb
-elif [ "$COMMAND" == "build-rpm" ]; then
-	build_rpm
 else
 	echo "Unknown command: $COMMAND" >&2
 	exit 1
